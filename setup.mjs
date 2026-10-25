@@ -4,8 +4,8 @@ import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {inflateRawSync} from 'node:zlib';
 const repo=path.dirname(fileURLToPath(import.meta.url));
-const zip=await fs.readFile(path.join(repo,'RALVEN_Application_5.0.1.zip'));
-const expected='ffb24f7c276e2930e8f15a8d329e6a7f7fa9582f06894432bb935c2917da34be';
+const zip=await fs.readFile(path.join(repo,'RALVEN_Application_5.1.0.zip'));
+const expected='c785eac5c68596de0c430b37dc3158c78bb13e3a43bd9b8139cc813aa76bb3a8';
 if(createHash('sha256').update(zip).digest('hex')!==expected)throw Error('The archive differs from the verified baseline. Review a new package before changing this checksum.');
 const root=path.join(repo,'application');let end=-1;
 for(let i=zip.length-22;i>=Math.max(0,zip.length-65557);i--)if(zip.readUInt32LE(i)===0x06054b50){end=i;break;}
@@ -26,5 +26,5 @@ for(let n=0;n<zip.readUInt16LE(end+10);n++){
  if(existing&&!existing.equals(data))throw Error('Preserving a modified file: '+target+'. Move it aside before running setup.');
  if(!existing){await fs.mkdir(path.dirname(target),{recursive:true});await fs.writeFile(target,data);written++;}
 }
-console.log('RALVEN baseline verified. '+written+' files materialized in application/.');
+console.log('RALVEN application archive verified. '+written+' files materialized in application/.');
 console.log('Run: cd application && node server.mjs');

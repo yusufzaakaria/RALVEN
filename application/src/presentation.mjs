@@ -12,7 +12,7 @@ export function pageAssumptions(c,r,page='all'){
 export function valuationPresentation(c,r){
  const reason=analysisUnavailable(c,r);if(reason)return {available:false,reason,methods:[],bridge:[]};
  const methods=[],bridge=[];
- if(r.weight>0&&r.engine==='residual')methods.push({key:'residual',name:'Residual income',value:r.residual.price,weight:1});
+ if(r.weight>0&&r.engine==='residual')methods.push({key:'residual',name:'Residual income',value:r.residual.price,weight:r.weight});
  else if(r.weight>0&&r.eligible)methods.push({key:'intrinsic',name:financial(c)?'DDM':'DCF · FCFF',value:r.dcf.price,weight:r.weight});
  if(r.relative?.price>0&&r.weight<1)methods.push({key:'relative',name:'Relative valuation',value:r.relative.price,weight:1-r.weight});
  for(const row of methods)row.contribution=row.value*row.weight;

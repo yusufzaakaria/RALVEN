@@ -33,6 +33,6 @@ The refreshed engine produces 308 source-checked and 375 conditional valuations.
 4. Add historical average FX/constant-currency presentation and more currency-native models. Current foreign-input valuation is a disclosed fixed-spot IDR scenario and remains conditional.
 5. Build an unattended durable market-wide filing queue and controlled notifications. Current source refresh and watchlist checks are user initiated. No scheduled emails or external messages are sent.
 6. Add additive fair-value change attribution, full point-in-time fundamental validation and multi-user review approvals. Current change ledger records field differences; notes, scenarios and watchlists are device-local, with portable JSON export.
-7. Extend browser automation into committed provider-failure, download/import, mobile and cross-browser tests. Calculation/artifact CI is included; manual browser verification is documented separately.
+7. Extend browser automation into committed provider-failure, download/import, mobile and cross-browser tests. Calculation/artifact command checks are included; manual browser verification is documented separately.
 
 These items remain part of the original audit scope. They are recorded as outstanding rather than marked complete by the presence of a chart or a BUY/SELL label.

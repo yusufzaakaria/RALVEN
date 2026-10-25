@@ -16,3 +16,10 @@ Run with Node.js 24 or newer: `node server.mjs` from this folder, then open `htt
 BUY means upside at least the chosen positive threshold (default 15%); SELL means downside at least the chosen negative threshold (default -15%); HOLD falls between. Technical signals use separate price rules. WAIT means essential evidence/model requirements are unresolved and is not HOLD. An outcome for all directory records does not mean all issuers have complete financial statements or an investment-grade recommendation.
 
 Contact: [yusufzaakaria@gmail.com](mailto:yusufzaakaria@gmail.com) · [Yusuf Zakaria on LinkedIn](https://www.linkedin.com/in/yusuf-zakaria).
+
+
+## Method coverage in version 5.1
+
+Open Valuation or Integrity for independent intrinsic, relative and cash-flow DCF assessments. BOTH means two available valuation methods, not necessarily cash-flow DCF. ALTERNATIVE_INTRINSIC_AND_RELATIVE means residual income plus peers: the course cash-flow DCF remains incomplete. Inspect DCF requirements and Data for the exact source gaps. Residual-income/relative blends use equal conditional classroom weights and five-year clean-surplus ROE fade; review these assumptions before relying on an indication.
+
+Screener coverage and exported CSV expose both method coverage and DCF comparison status. Excel and PDF include the same distinction. Missing source values remain blank; source-supported NCI reconciliation does not certify absent debt or preferred claims. See RELEASE_5_1.md for implemented and remaining stages.

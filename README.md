@@ -7,6 +7,14 @@ Functional web application for the Digital Business Valuation midterm project by
 - [Open BMRI using the current saved snapshot](https://ralven-equity-terminal.airycoot8.chatgpt.site/?ticker=BMRI)
 - [BMRI model and report clarifications](BMRI_Deliverable_Alignment.md)
 
+## Current release: 5.1.0
+
+First staged implementation of the intrinsic/relative remediation, published after submission on 26 October 2026. [Implementation and remaining stages](Remediation_Progress.md).
+
+Intrinsic and relative methods are assessed independently. A residual-income estimate may now accompany peers where eligible, but is explicitly distinguished from cash-flow DCF. The packaged coverage contains 474 two-method assessments: 71 cash-flow DCF + relative and 403 accounting-based intrinsic + relative. Conditional and blocked decisions remain labelled. These are dated package counts, not a new live market-wide data retrieval or analyst certification.
+
+The new source ZIP contains the complete application. BMRI workbook, reports and editable supporting presentation below retain their dated supporting-case context; the archived BMRI calculation remains reproducible. Prior source ZIPs and the submission baseline remain preserved.
+
 ## BMRI deliverables
 
 The archived case uses a 25 October 2026 valuation date, a Rp3,900 observed close dated 23 October, and the TTM financial basis ended 30 June 2026. It reproduces Rp6,447 dividend-discount value, Rp4,050 relative value, and Rp5,248 weighted fair value using 50% / 50% weights. The conditional model indication is BUY at +34.6% upside. These are dated model results, not current prices or independently verified investment advice.
@@ -31,7 +39,7 @@ cd application
 node server.mjs
 ```
 
-Open the local URL printed by the server. `setup.mjs` verifies the SHA-256 of `RALVEN_Application_5.0.1.zip` and extracts the complete application into `application/`. It refuses to overwrite modified files. Calculation modules and tests are also directly browsable in that folder on GitHub. No paid service or Python installation is required to run the bundled Node application.
+Open the local URL printed by the server. `setup.mjs` verifies the SHA-256 of `RALVEN_Application_5.1.0.zip` and extracts the complete application into `application/`. It refuses to overwrite modified files. Calculation modules and tests are also directly browsable in that folder on GitHub. No paid service or Python installation is required to run the bundled Node application.
 
 ```sh
 node --test tests/*.test.mjs
@@ -39,7 +47,7 @@ node build.mjs
 node scripts/validate-artifact.mjs
 ```
 
-The release has 108 passing regression tests. The Excel formula chain is separately checked against the application calculation engine. No repository write automation is installed.
+The release has 125 passing regression tests. The Excel formula chain is separately checked against the application calculation engine. No repository write automation is installed.
 
 ## Functionality
 

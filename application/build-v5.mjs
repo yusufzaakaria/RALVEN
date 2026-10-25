@@ -11,7 +11,7 @@ async function collect(dir,prefix=''){for(const entry of await fs.readdir(dir,{w
 await collect('public');await collect('src','/src');
 const evidence=JSON.parse(await fs.readFile('public/data/evidence.json'));for(const ticker of Object.keys(evidence.companies))add('/data/evidence/'+ticker+'.json',Buffer.from(JSON.stringify(evidenceBundle(evidence,ticker))),'application/json');
 add('/data/release.json',Buffer.from(JSON.stringify(release)),'application/json');
-const provider=(await Promise.all(['src/release.mjs','src/directory.mjs','src/method-registry.mjs','src/prices.mjs','src/comparables.mjs','src/filings.mjs','src/evidence.mjs','src/market.mjs','src/snapshot-service.mjs'].map(p=>fs.readFile(p,'utf8')))).join('\n').replace(/^import .*$/gm,'');
+const provider=(await Promise.all(['src/release.mjs','src/directory.mjs','src/method-registry.mjs','src/prices.mjs','src/comparables.mjs','src/filings.mjs','src/capital-evidence.mjs','src/evidence.mjs','src/market.mjs','src/snapshot-service.mjs'].map(p=>fs.readFile(p,'utf8')))).join('\n').replace(/^import .*$/gm,'');
 const worker=provider.replace(/export /g,'')+'\nconst assets='+JSON.stringify(files)+';\n'+await fs.readFile('worker/runtime.mjs','utf8');
 await fs.mkdir('worker',{recursive:true});await fs.writeFile('worker/index.js',worker);await fs.mkdir('dist/server',{recursive:true});await fs.mkdir('dist/.openai',{recursive:true});await fs.writeFile('dist/server/index.js',worker);await fs.copyFile('.openai/hosting.json','dist/.openai/hosting.json');
 console.log('Built RALVEN '+release.engine+' / '+Object.keys(files).length+' assets / '+Math.round(Buffer.byteLength(worker)/1024)+' KB; per-issuer evidence loads on demand.');
