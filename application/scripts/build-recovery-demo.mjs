@@ -1,0 +1,12 @@
+import fs from 'node:fs/promises';
+import {recoveryFixture} from '../tests/recovery-fixture.mjs';
+import {analyzeCompany} from '../src/research.mjs';
+const {c,a}=recoveryFixture();
+Object.assign(c,{ticker:'TEST',name:'Synthetic Operating Recovery Case',prices:[],signalPrices:[],previousClose:null,high52:null,low52:null,source:'Fictional classroom inputs. Not an IDX issuer, market quote, or investment recommendation.'});
+c.peers=c.peers.map((p,i)=>({...p,ticker:'SYN'+(i+1),name:'Synthetic peer '+(i+1),source:'Fictional classroom peer inputs.'}));
+c.recoveryPlan.source='https://github.com/yusufzaakaria/RALVEN/blob/main/application/tests/recovery-fixture.mjs';
+c.recoveryPlan.availableCash=350;
+const r=analyzeCompany(c,a);
+if(!r.recovery?.eligible)throw Error('Synthetic recovery case must be funded.');
+await fs.writeFile(new URL('../public/data/cases/RECOVERY-DEMO.json',import.meta.url),JSON.stringify({caseId:'RECOVERY-DEMO',company:c,assumptions:a,simulation:{count:5000,seed:42,marginSigma:.1,growthSigma:.05,rateSigma:0,terminalSigma:0,multipleSigma:0},expected:{fair:r.fair,recommendation:r.recommendation}},null,2));
+console.log(JSON.stringify({synthetic:true,fair:r.fair,headroom:r.recovery.minimumHeadroom,scenarios:r.scenarios}));

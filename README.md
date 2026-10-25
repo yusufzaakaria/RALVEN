@@ -7,13 +7,17 @@ Functional web application for the Digital Business Valuation midterm project by
 - [Open BMRI using the current saved snapshot](https://ralven-equity-terminal.airycoot8.chatgpt.site/?ticker=BMRI)
 - [BMRI model and report clarifications](BMRI_Deliverable_Alignment.md)
 
-## Current release: 5.1.0
+## Current release: 5.2.0
 
-First staged implementation of the intrinsic/relative remediation, published after submission on 26 October 2026. [Implementation and remaining stages](Remediation_Progress.md).
+Reviewed cash-funded recovery for operating companies, released after submission on 26 October 2026. [Changes, validation and remaining work](Remediation_Progress.md).
 
-Intrinsic and relative methods are assessed independently. A residual-income estimate may now accompany peers where eligible, but is explicitly distinguished from cash-flow DCF. The packaged coverage contains 474 two-method assessments: 71 cash-flow DCF + relative and 403 accounting-based intrinsic + relative. Conditional and blocked decisions remain labelled. These are dated package counts, not a new live market-wide data retrieval or analyst certification.
+Negative early FCFF can be valued with five explicit annual operating paths and a reviewed cash budget. Existing unrestricted cash must cover deficits, financing payments and a reserve; both final forecast years must have positive EBIT and FCFF. Missing inputs are not replaced by zero. Underfunded or unreviewed active plans produce WAIT. New debt, equity issuance, dilution, tax-loss benefits and intrayear liquidity are outside this model. Web, scenario, simulation, Excel and PDF gates are coordinated.
 
-The new source ZIP contains the complete application. BMRI workbook, reports and editable supporting presentation below retain their dated supporting-case context; the archived BMRI calculation remains reproducible. Prior source ZIPs and the submission baseline remain preserved.
+The [synthetic recovery example](https://ralven-equity-terminal.airycoot8.chatgpt.site/?case=RECOVERY-DEMO) uses fictional subject and peer inputs for model inspection, not an issuer recommendation. Enable reviewed recovery for a real operating issuer in Data or Forecast only after inspecting its disclosures.
+
+144 automated tests pass. Seven independent spreadsheet cases reconcile to the engine, including recovery using EV/Sales or EV/EBITDA; invalid funding produces WAIT. Archived BMRI figures remain reproducible.
+
+The dated package still records 474 two-method assessments: 71 cash-flow DCF + relative and 403 residual-income + relative. Recovery plans are not auto-created to inflate coverage. These counts are not complete financial data, new market-wide retrieval or analyst certification. The original submitted BMRI PDF is not replaced; the supporting BMRI workbook/report/presentation below retain their dated case context. Prior source ZIPs and the submission-baseline branch remain preserved.
 
 ## BMRI deliverables
 
@@ -39,7 +43,7 @@ cd application
 node server.mjs
 ```
 
-Open the local URL printed by the server. `setup.mjs` verifies the SHA-256 of `RALVEN_Application_5.1.0.zip` and extracts the complete application into `application/`. It refuses to overwrite modified files. Calculation modules and tests are also directly browsable in that folder on GitHub. No paid service or Python installation is required to run the bundled Node application.
+Open the local URL printed by the server. `setup.mjs` verifies the SHA-256 of `RALVEN_Application_5.2.0.zip` and extracts the complete application into `application/`. It refuses to overwrite modified files. Calculation modules and tests are also directly browsable in that folder on GitHub. No paid service or Python installation is required to run the bundled Node application.
 
 ```sh
 node --test tests/*.test.mjs
@@ -47,7 +51,7 @@ node build.mjs
 node scripts/validate-artifact.mjs
 ```
 
-The release has 125 passing regression tests. The Excel formula chain is separately checked against the application calculation engine. No repository write automation is installed.
+The release has 144 passing regression tests. The Excel formula chain is separately checked against the application calculation engine. No repository write automation is installed.
 
 ## Functionality
 
@@ -59,7 +63,7 @@ For BMRI, DDM discounts five annual common-equity distributions and a terminal d
 
 Sources include IDX consolidated XBRL filings, issuer reports and Yahoo Finance observations. Source dates, original amounts, currency, units and evidence status remain visible. Compatible definitions and periods are reconciled; conflicting observations are not averaged. TTM flows use prior annual plus current YTD minus comparable prior YTD.
 
-The bundled directory contains 962 records; supported primary archives cover 924. This does **not** mean complete financial statements for every issuer. Missing notes, leases, D&A, unavailable denominators and inapplicable sector fields remain distinguished. There are 683 eligible fundamental valuations with scenario, sensitivity, tornado and simulation output. Technical-only signals and WAIT outcomes are labelled when fundamental evidence is inadequate. A recommendation is not forced by filling missing data with zeros.
+The bundled directory contains 962 records; supported primary archives cover 924. This does **not** mean complete financial statements for every issuer. Missing notes, leases, D&A, unavailable denominators and inapplicable sector fields remain distinguished. There are 684 eligible fundamental valuations with scenario, sensitivity, tornado and simulation output. Technical-only signals and WAIT outcomes are labelled when fundamental evidence is inadequate. A recommendation is not forced by filling missing data with zeros.
 
 Refresh depends on public-source connectivity and may encounter access restrictions or rate limits. The standalone server uses local persistence; hosted snapshots use the configured R2 storage. Archived case links remain dated and must not be described as live market data. Monte Carlo inputs are analyst settings, not empirically calibrated investment probabilities.
 

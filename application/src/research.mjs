@@ -16,8 +16,8 @@ function calculateCompany(subject,a=assumptions(subject),{grid=true}={}){
  const base=evaluate(c,a,{grid});base.basis='FUNDAMENTAL';base.engine='core';
  if(c.sourceScaleIssues?.length)return {...base,valid:false,basis:'UNRATED',engine:'unavailable',fair:null,low:null,high:null,upside:null,weight:0,eligible:false,dcf:null,relative:{peers:[],legs:[],price:null},scenarios:{bear:null,base:null,bull:null},sensitivity:[],rationale:'Primary comparative statements have inconsistent scale factors. Valuation is withheld until the original reporting units are reconciled.'};
  const disputedBridge=!financial(c)&&['debt','cash','minority','preferred'].some(k=>['CONFLICT','DEFINITION'].includes(c.evidence?.rows?.find(x=>x.field===k)?.status));
- const relativeOnly=methodProfile(c).family==='holding'||disputedBridge||extractiveCompany(c)||(!financial(c)&&c.capexRatio>.35);
- if(base.valid&&base.eligible&&!relativeOnly){base.rationale=`${financial(c)?'Financial services use DDM at cost of equity; no corporate net-debt bridge.':base.stable?'Stable positive operating cash flow supports greater intrinsic weight.':'Unproven cash-flow stability reduces intrinsic emphasis when peers qualify.'} Actual eligible weights: ${Math.round(base.weight*100)}% intrinsic / ${Math.round((1-base.weight)*100)}% industry relative. ${!base.eligible?'Intrinsic method excluded: forecast cash flow or equity value is not positive.':base.relative.price===null?'Relative method excluded: fewer than three eligible peers per multiple.':''}`;return base;}
+ const relativeOnly=methodProfile(c).family==='holding'||disputedBridge||extractiveCompany(c)||(!financial(c)&&c.capexRatio>.35&&!base.recovery?.eligible);
+ if(base.valid&&base.eligible&&!relativeOnly){base.rationale=`${financial(c)?'Financial services use DDM at cost of equity; no corporate net-debt bridge.':base.stable?'Stable positive operating cash flow supports greater intrinsic weight.':'Unproven cash-flow stability reduces intrinsic emphasis when peers qualify.'} ${base.recovery?.eligible?'Reviewed cash-funded recovery permits the documented negative early FCFF; annual financing payments constrain liquidity without a second value deduction. ':''}Actual eligible weights: ${Math.round(base.weight*100)}% intrinsic / ${Math.round((1-base.weight)*100)}% industry relative. ${!base.eligible?'Intrinsic method excluded: forecast cash flow or equity value is not positive.':base.relative.price===null?'Relative method excluded: fewer than three eligible peers per multiple.':''}`;return base;}
  const age=(Date.parse(c.valuationDate)-Date.parse(c.priceDate))/86400000,reportAge=(Date.parse(c.valuationDate)-Date.parse(c.period))/86400000;
  const hard=!(c.price>0)||!Number.isFinite(age)||age<0||age>7||c.currency!=='IDR'||c.units!=='IDR bn / shares bn';
  const assumptionErrors=base.checks.filter(x=>x.level==='error'&&(x.code.startsWith('ASSUMPTION_')||/^Y[1-5]_/.test(x.code)||x.code==='DRIVER_PATH'||['BOUNDS','GROWTH','REINVESTMENT','FUTURE_DATA'].includes(x.code)));
@@ -65,7 +65,7 @@ export function analyzeCompany(subject,a=assumptions(subject),options={}){
  const result=calculateCompany(c,a,options),quality=evidenceAssessment(c,result);
  result.quality=quality;result.checks=[...(result.checks||[]),...quality.checks];
  result.modelRecommendation=result.recommendation;
- const allowed=c.mode==='demo'?result.valid||result.engine==='technical':quality.actionable;
+ const allowed=(c.mode==='demo'?result.valid||result.engine==='technical':quality.actionable)&&(!c.recoveryPlan||result.recovery?.eligible===true);
  if(!allowed){result.recommendation='WAIT';result.basis='UNRATED';}
  else if(c.mode!=='demo'&&result.valid&&quality.status!=='RECONCILED')result.basis='INDICATIVE';
  result.methodAssessment=methodAssessment(c,a,result);

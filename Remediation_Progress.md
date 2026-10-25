@@ -1,32 +1,38 @@
-# RALVEN 5.1.0 — independent method assessment
+# RALVEN 5.2.0 — reviewed operating recovery
 
-Released 26 October 2026. First implementation stage of the intrinsic/relative remediation plan. This does not claim that every issuer has a supported cash-flow DCF.
+Released 26 October 2026, after the original submission. This is the next bounded stage of the intrinsic/relative remediation. It does not assert complete financial statements, dual-method valuations, or investment recommendations for every IDX issuer.
 
-## Implemented
+## What changed
 
-- Relative success no longer prevents assessment of an eligible residual-income intrinsic candidate. Profitable issuers with sufficient annual earnings/book history can combine conditional residual income and eligible relative pricing when FCFF/DDM is unavailable. Equal 50:50 weights are a disclosed classroom policy, not a calibrated optimum.
-- Independent method assessment records intrinsic, relative and cash-flow DCF status, values, weights, gaps and reasons. Accounting-based intrinsic is never labelled cash-flow DCF or claimed to complete the course DCF comparison.
-- Residual blends use the same weights in scenarios, sensitivity centers, Monte Carlo, chart contributions, football fields and linked Excel formulas. Excel contains method coverage and separate standalone values.
-- Source-supported NCI reconstruction uses consolidated total equity minus parent equity from the same original filing/date/currency/unit. Components and provenance are retained. Nil, missing preferred claims and missing debt never become certified zeros.
-- Data remediation lists DCF gaps separately from active-model inputs. Valuation/Integrity show full assessments; the dashboard has a compact indicator; screener and CSV disclose method coverage.
-- Packaged screener and issuer lookup share a deterministic, bounded peer evidence universe and valuation date. Unrelated earlier lookups cannot change eligibility. Valuation dates use Asia/Jakarta; source dates remain intact.
-- Archived BMRI values remain reproducible. Current refreshed issuer/peer data can change a new analysis; the submission case remains dated.
+- Operating companies can use FCFF with negative early cash flows only through an explicit analyst-reviewed five-year recovery plan. Both final years require positive EBIT and FCFF.
+- The analyst supplies all six annual operating drivers, unrestricted cash allocated, a liquidity reserve, and five years of after-tax financing interest, principal and other cash obligations. Blank obligations never become zero. Principal cannot exceed disclosed financing debt.
+- Annual closing cash must fund deficits, obligations and the reserve. No new borrowing, equity issuance or dilution is supported. Financing cash payments constrain liquidity and are not deducted a second time from FCFF equity value. Constant WACC and current capital-claim values remain conditional assumptions.
+- Negative EBIT creates no immediate cash tax credit. No tax-loss carryforward benefit is invented. A separate jurisdiction-specific tax schedule would be needed to recognize such benefits.
+- An active unreviewed, stale or underfunded recovery plan withholds the action (WAIT), including when a relative fallback value exists. Removing the plan restores ordinary method-selection rules.
+- EV/Sales can accompany an eligible operating recovery when trailing earnings and EBITDA are nonpositive. At least three eligible positive peer observations are required; EV/Sales is capped below 30x. A sales multiple is a conditional pricing cross-check, not evidence that future profitability will recover.
+- Scenarios, sensitivity matrices, tornado values and Monte Carlo apply the recovery/funding gates. Invalid stresses remain unavailable. Monte Carlo exposes recovery/funding rejections; accepted draws are conditional and not investment probabilities.
+- Data and Forecast contain a recovery editor and liquidity schedule. Excel adds literal Recovery Inputs and formula-based Recovery Funding sheets, linked eligibility/rating guards and sensitivity checks. PDF includes the cash budget, source/rationale, limits, scenario omissions and simulation rejections.
+- Optional recovery inputs and annual paths round-trip through the Excel template. Exported boolean formula results retain valid XLSX cell types. Source classifications, peer membership, simulation and tornado remain export-time snapshots where labelled.
+
+Review binds to the financial period, valuation date and source snapshot. User-entered review assertions are not independent source certification. Device-local plans are not uploaded as shared issuer facts. Excel source changes require reimport and review.
 
 ## Validation
 
-125 regression tests pass. Independent spreadsheet recalculation matches corporate FCFF, bank DDM, relative-only, standalone residual income and residual/relative blend, including annual payout paths, sensitivity centers and invalid-input guards. A browser-downloaded AALI workbook includes both formula chains, method assessment and source facts with no cached formula error cells. Its combined value Rp9,323.536195980834 matches the displayed Rp9,324 for that tested snapshot.
+144 automated tests pass, including archived BMRI values and simulation, funded/unfunded recovery, missing claims, review-basis changes, tax treatment, scenario shocks, sensitivity/Monte Carlo reconciliation, Excel import and the actual browser XLSX writer. Seven independent spreadsheet cases recalculate to the engine, covering FCFF, DDM, relative, residual, residual/relative blend and recovery with EV/Sales or EV/EBITDA. Funding reductions and blank annual drivers produce WAIT and blank sensitivity outputs. English and Indonesian report funding pages and browser controls were reviewed.
 
-Tests do not certify external disclosures or forecast economics. No native Excel execution certification or calibrated investment probabilities are claimed.
+The [synthetic recovery example](https://ralven-equity-terminal.airycoot8.chatgpt.site/?case=RECOVERY-DEMO) uses fictional subject and peer data solely to inspect model behavior. It is not an IDX issuer analysis. Its tests are in `tests/recovery*.mjs`.
 
-## Packaged coverage
+## Coverage and remaining work
 
-The regenerated 962-issuer package records 474 two-method assessments: 71 cash-flow DCF + relative and 403 accounting-based intrinsic + relative. It records 168 relative-only, 42 intrinsic-only and 278 incomplete assessments. Availability is separate from actionability; conditional/blocked decisions remain labelled. Original directory and financial-source dates are retained. No new market-wide live retrieval is claimed.
+The dated 962-issuer package still records 474 dual-method assessments: 71 cash-flow DCF + relative and 403 accounting-based residual income + relative; 168 relative-only, 42 intrinsic-only and 278 incomplete. Source-primary coverage remains 924/962. These counts distinguish availability from actionability and do not represent a new market-wide data retrieval. Recovery plans are intentionally not auto-created to inflate coverage.
 
-## Remaining implementation stages
+Remaining stages:
 
-1. Retrieve and review remaining capital claims, note disclosures, D&A and compatible TTM components. Preferred-claim absence must be verified rather than assumed.
-2. Add reviewed recovery and financing schedules before relaxing negative early-FCFF eligibility. Change engine, Excel, stresses and funding checks together.
-3. Integrate fully supported mine-life, attributable holding-asset DCF and solvency/capital-aware sector models. Current sector tools remain supplemental analyst cases; unsupported automatic models remain blocked.
-4. Replace common forecast and simulation defaults with reviewed issuer assumptions and appropriate calibration. Clean-surplus accounting and residual-income fade assumptions also require review.
+1. Retrieve and review missing debt, leases, preferred claims, notes, D&A and compatible TTM evidence. Preserve missing/nil as missing and original source lineage.
+2. Prepare issuer-specific recovery forecasts and cash obligations where reliable disclosures permit; extend to explicit refinancing/dilution, tax-loss schedules and intrayear liquidity only with supporting data.
+3. Integrate supported mine-life/closure, holding-asset DCF and capital/solvency-aware financial-sector models. Research Lab sector cases remain supplemental until that integration is validated.
+4. Review issuer forecasts, peer economics, terminal normalization, residual clean-surplus/fade assumptions and simulation calibration. A technically calculable value is not a validated analyst conclusion.
 
-This release improves method selection and traceability. It does not present accounting estimates as replacements for missing cash-flow evidence.
+The original submitted BMRI PDF, archived BMRI assumptions/results and `submission-baseline-2026-10-25` remain preserved. Later code/reports are versioned rather than backdated. Prior release notes: `RELEASE_5_1.md`.
+
+Methodology reference: [Damodaran, cash-flow DCF](https://pages.stern.nyu.edu/~adamodar/pdfiles/dcfcf.pdf). The implementation's cash-funding limits and review rules are explicitly documented model policy.

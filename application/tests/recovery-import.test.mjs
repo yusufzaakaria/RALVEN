@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import vm from 'node:vm';
+import {recoveryFixture} from './recovery-fixture.mjs';
+import {templateSpec} from '../src/workbook.mjs';
+import {researchSpec} from '../src/research-workbook.mjs';
+import {sample} from '../src/data.mjs';
+import {assumptions,analyzeCompany} from '../src/research.mjs';
+const context=vm.createContext({console});
+vm.runInContext(await fs.readFile(new URL('../public/vendor/xlsx.full.min.js',import.meta.url),'utf8'),context);
+globalThis.XLSX=context.XLSX;
+let code=await fs.readFile(new URL('../public/exports.js',import.meta.url),'utf8');
+code=code.replace(/from '(\/src\/[^']+)'/g,(_,p)=>'from '+JSON.stringify(new URL('..'+p,import.meta.url).href));
+const {parseImport,downloadExcel}=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
+function fileFrom(spec){const wb=XLSX.utils.book_new();for(const [name,rows]of Object.entries(spec)){const ws=XLSX.utils.aoa_to_sheet(rows.map(row=>row.map(cell=>cell?.formula?null:cell)));rows.forEach((row,i)=>row.forEach((cell,j)=>{if(cell?.formula)ws[XLSX.utils.encode_cell({r:i,c:j})]={t:'n',v:cell.value,f:cell.formula};}));XLSX.utils.book_append_sheet(wb,ws,name);}const bytes=XLSX.write(wb,{type:'array',bookType:'xlsx'});return {name:'Recovery.xlsx',size:bytes.byteLength,arrayBuffer:async()=>bytes};}
+test('Excel recovery template round-trips explicit annual paths, obligations and review basis',async()=>{const {c,a}=recoveryFixture(),expected=analyzeCompany(c,a),parsed=await parseImport(fileFrom(templateSpec(c,a))),actual=analyzeCompany(parsed.c,parsed.a);assert.equal(actual.recovery.eligible,true);assert.equal(actual.recommendation,expected.recommendation);assert.ok(Math.abs(actual.fair-expected.fair)<1e-7);assert.deepEqual(parsed.a.paths.slice(0,5).map(p=>p.margin),a.paths.map(p=>p.margin));assert.deepEqual(parsed.c.recoveryPlan.principalPayments,c.recoveryPlan.principalPayments);});
+test('Ordinary template leaves the optional recovery inactive',async()=>{const c=sample('TLKM'),a=assumptions(c),parsed=await parseImport(fileFrom(templateSpec(c,a)));assert.equal(parsed.c.recoveryPlan,undefined);assert.equal(analyzeCompany(parsed.c,parsed.a).fair,analyzeCompany(c,a).fair);});
+test('Blank imported obligations remain missing and block recovery rather than becoming zero',async()=>{const {c,a}=recoveryFixture(),spec=templateSpec(c,a);spec['Recovery Inputs'][10][3]=null;const parsed=await parseImport(fileFrom(spec)),r=analyzeCompany(parsed.c,parsed.a);assert.equal(r.recommendation,'WAIT');assert.ok(r.recovery.reasons.some(x=>x.code==='RECOVERY_PAYMENTS'));});
+test('Untrusted formulas in recovery input cells are rejected',async()=>{const {c,a}=recoveryFixture(),spec=templateSpec(c,a);spec['Recovery Inputs'][7][1]={formula:'1+1',value:2};await assert.rejects(parseImport(fileFrom(spec)),/Formula found in Recovery Inputs/);});
+test('Browser Excel writer retains cached boolean funding results in the XLSX file',()=>{const {c,a}=recoveryFixture(),r=analyzeCompany(c,a),original=XLSX.writeFile;let parsed;try{XLSX.writeFile=wb=>{parsed=XLSX.read(XLSX.write(wb,{type:'array',bookType:'xlsx'}),{type:'array',cellFormula:true});};downloadExcel(researchSpec(c,a,r),'Recovery.xlsx');assert.equal(parsed.Sheets['Recovery Funding'].B14.t,'b');assert.equal(parsed.Sheets['Recovery Funding'].B14.v,true);assert.ok(parsed.Sheets['Recovery Funding'].B14.f.includes('B13'));}finally{XLSX.writeFile=original;}});

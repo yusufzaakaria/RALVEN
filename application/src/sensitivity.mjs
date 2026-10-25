@@ -1,8 +1,10 @@
+import {recoveryReview} from './recovery.mjs';
 import {capital,financial,intrinsic,relativeAt} from './engine.mjs';
 import {residualIncome} from './residual.mjs';
 
 const steps=[-.2,-.1,0,.1,.2];
 export function analysisUnavailable(c,r){
+ if(c.recoveryPlan&&!r.recovery?.eligible)return 'The active recovery review or liquidity coverage is incomplete. Resolve it before calculating valuation stresses.';
  if(c.sourceScaleIssues?.length)return 'Source reporting units conflict. Reconcile the original statements before calculating valuation sensitivity.';
  if(r.engine==='technical')return 'This is a price-only signal. Financial statements or eligible peers are insufficient for a fundamental fair value; a valuation sensitivity chart would be unsupported.';
  if(!r.valid||!(r.fair>0))return r.rationale||'No eligible valuation method or supported fair value.';
@@ -17,8 +19,8 @@ export function sensitivityValue(c,a,r,{multiple=1,denominator=1,ke,roe,payout,b
  const b={...a,...(g===undefined?{}:{g}),...(parameter?{[parameter]:a[parameter]+delta}:{})};
  if(parameter&&b.paths)b.paths=b.paths.map(path=>({...path,...(Number.isFinite(path[parameter])?{[parameter]:path[parameter]+delta}:{})}));
  if(rate!==undefined){const cp=capital(c,b),weight=financial(c)?1:cp.marketCap/(cp.marketCap+c.debt);if(!(weight>0))return null;b.rf+=(rate-cp.wacc)/weight;}
- if(!(b.rf>=0&&b.g>=0&&b.g<(financial(c)?b.terminalRoe:b.roic)&&capital(c,b).wacc>b.g+.005&&b.margin>0&&b.margin<1&&b.growth>-.5&&b.growth<1&&b.capex>=0&&b.payout>0&&b.payout<=1))return null;
- const d=intrinsic(c,b);return Number.isFinite(d.price)?r.weight*Math.max(0,d.price)+(1-r.weight)*rel:null;
+ if(!(b.rf>=0&&b.g>=0&&b.g<(financial(c)?b.terminalRoe:b.roic)&&capital(c,b).wacc>b.g+.005&&b.margin>(c.recoveryPlan?-1:0)&&b.margin<1&&b.growth>-.5&&b.growth<1&&b.capex>=0&&b.payout>0&&b.payout<=1))return null;
+ const d=intrinsic(c,b);if(c.recoveryPlan&&!recoveryReview(c,b,d.rows).eligible)return null;return Number.isFinite(d.price)?r.weight*Math.max(0,d.price)+(1-r.weight)*rel:null;
 }
 export function sensitivityMatrix(c,a,r){
  const reason=analysisUnavailable(c,r);if(reason)return {available:false,reason};
