@@ -1,4 +1,8 @@
-# RALVEN 5.0.0 — 25 October 2026
+# RALVEN 5.0.1 — 25 October 2026
+
+The 5.0.1 patch adds an explicitly dated BMRI case, ticker deep links, bank-specific workbook labels and removal of unused corporate FCFF projections from bank exports. Financial calculations are unchanged. All 11 checked BMRI headline values reproduce the original 5.0.0 case within displayed rounding. The full regression suite now has 108 passing tests.
+
+Archived case: append `?case=BMRI-2026-10-25` to the application URL. Append `?ticker=BMRI` for the currently saved BMRI source snapshot. The archived case keeps 25 October 2026 valuation assumptions, a 23 October quote, and TTM income ended 30 June. Refreshing data creates a different research basis.
 
 This release implements the audited round-trip, timing, validation and interface repairs. Financial availability remains constrained by public disclosures. It does not certify complete statements for every IDX issuer.
 

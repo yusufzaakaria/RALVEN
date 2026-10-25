@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import {analyzeCompany} from '../src/research.mjs';
+import {researchSpec} from '../src/research-workbook.mjs';
+import {simulate} from '../src/simulation.mjs';
+const archived=JSON.parse(await fs.readFile(new URL('../public/data/cases/BMRI-2026-10-25.json',import.meta.url),'utf8'));
+const c=archived.company,a=archived.assumptions,r=analyzeCompany(c,a),near=(x,y)=>assert.ok(Math.abs(x-y)<1e-7,x+' != '+y);
+test('Archived BMRI case reproduces the submitted valuation without retuning assumptions',()=>{assert.equal(c.valuationDate,'2026-10-25');assert.equal(c.priceDate,'2026-10-23');assert.equal(c.period,'2026-06-30');assert.equal(r.recommendation,'BUY');near(r.dcf.price,archived.expected.ddm);near(r.relative.price,archived.expected.relative);near(r.fair,archived.expected.fair);near(r.low,archived.expected.bear);near(r.high,archived.expected.bull);near(r.upside,archived.expected.upside);near(r.low/c.price-1,.06720737246834041);});
+test('Archived BMRI simulation retains the submitted seed, count and percentile results',()=>{const mc=simulate(c,a,r,archived.simulation);assert.equal(mc.count,5000);assert.equal(mc.seed,271828);assert.equal(mc.accepted,5000);for(const key of ['p10','p50','p90'])near(mc[key],archived.expected[key]);});
+test('Bank export keeps dividend calculations and removes unused corporate FCFF projections',()=>{const spec=researchSpec(c,a,r);for(const n of [3,5,6,7,8,9,10,11,12]){assert.match(spec.Forecast[n-1][0],/Not used by bank DDM/);assert.ok(spec.Forecast[n-1].slice(1).every(x=>x===null));}assert.ok(spec.Forecast[12][1].formula.includes('Inputs!'));assert.ok(spec.Forecast[13][1].formula.includes('Driver Paths'));assert.equal(spec.Forecast[14][1].formula,'B14');assert.match(spec.Summary[13][1],/No corporate net-debt bridge/);assert.ok(spec.Comps.slice(1).every(row=>row[3]===null));assert.match(spec.Sensitivity[0][0],/before blending/);});

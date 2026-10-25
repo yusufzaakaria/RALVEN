@@ -1,0 +1,12 @@
+import http from 'node:http';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {createSnapshotService} from './src/snapshot-service.mjs';
+import {evidenceBundle} from './src/evidence.mjs';
+const root=path.dirname(fileURLToPath(import.meta.url));let evidence;
+const readAsset=async key=>{if(/^\/data\/evidence\/[A-Z0-9]{4}\.json$/.test(key)){evidence??=fs.readFile(path.join(root,'public/data/evidence.json'),'utf8').then(JSON.parse);return evidenceBundle(await evidence,key.split('/').at(-1).slice(0,4));}return JSON.parse(await fs.readFile(path.join(root,'public',key),'utf8'));};
+const service=createSnapshotService(readAsset),mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.csv':'text/csv; charset=utf-8','.woff2':'font/woff2','.png':'image/png','.xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','.pdf':'application/pdf'};
+export const company=(ticker,options)=>service.getCompany(ticker,options);
+const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');if(url.pathname.startsWith('/api/')){const response=await service.handle(new Request(url));if(!response){res.writeHead(404);res.end('Not found');return;}res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));return;}const local=url.pathname==='/'?'public/index.html':url.pathname.startsWith('/src/')?decodeURIComponent(url.pathname.slice(1)):'public/'+decodeURIComponent(url.pathname).slice(1),absolute=path.resolve(root,local),allowed=path.join(root,url.pathname.startsWith('/src/')?'src':'public')+path.sep;if(!absolute.startsWith(allowed))throw Error('Invalid path');const content=await fs.readFile(absolute);res.writeHead(200,{'Content-Type':mime[path.extname(absolute)]||'application/octet-stream','Cache-Control':'no-cache'});res.end(content);}catch(e){res.writeHead(502,{'Content-Type':'application/json'});res.end(JSON.stringify({error:e.message}));}});
+const port=Number(process.env.PORT||4173);server.listen(port,'127.0.0.1',()=>console.log('RALVEN ready: http://127.0.0.1:'+port));

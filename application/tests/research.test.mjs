@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {sample} from '../src/data.mjs';
+import {analyzeCompany,assumptions,coverageRows} from '../src/research.mjs';
+import {simulate} from '../src/simulation.mjs';
+import {reconcileQuote,technicals} from '../src/market.mjs';
+test('Simulation reproducibility, percentiles and mass conservation',()=>{const c=sample(),a=assumptions(c),r=analyzeCompany(c,a),m=simulate(c,a,r,{count:2000,seed:42});assert.deepEqual(m,simulate(c,a,r,{count:2000,seed:42}));assert.equal(m.accepted+m.rejected,2000);assert.equal(m.histogram.reduce((s,b)=>s+b.count,0),m.accepted);assert.ok(m.p10<=m.p50&&m.p50<=m.p90);assert.ok(m.aboveMarket>=0&&m.aboveMarket<=1);});
+test('Zero-shock Monte Carlo reproduces deterministic fair value',()=>{const c=sample(),a=assumptions(c),r=analyzeCompany(c,a),m=simulate(c,a,r,{count:500,growthSigma:0,marginSigma:0,rateSigma:0,terminalSigma:0,multipleSigma:0});assert.ok(Math.abs(m.p50-r.fair)<1e-7);});
+test('Loss-making issuer never uses PE, but can use valid EV/sales peers',()=>{const c=sample();c.netIncome=-50;c.ebit=-50;c.ebitda=-50;c.peers=c.peers.map(p=>({...p,revenue:5000}));const r=analyzeCompany(c,assumptions(c));assert.equal(r.engine,'relative');assert.ok(r.relative.legs.every(x=>x.metric==='evSales'));});
+test('Duplicate peers cannot create partial relative eligibility',()=>{const c=sample();c.ebit=null;c.netIncome=-1;c.peers=Array(5).fill({...c.peers[0],revenue:5000});const r=analyzeCompany(c,assumptions(c));assert.equal(r.recommendation,'WAIT');});
+test('Technical signals do not produce a fake fair value',()=>{const c=sample();c.revenue=null;c.ebit=null;c.netIncome=null;c.peers=[];c.technicals=technicals(Array.from({length:240},(_,i)=>100+i+Math.sin(i)*4));c.price=339;const r=analyzeCompany(c,assumptions(c));assert.equal(r.basis,'TECHNICAL');assert.equal(r.fair,null);assert.equal(simulate(c,assumptions(c),r),null);});
+test('Stale and missing quotes withhold technical signals',()=>{const c=sample();c.priceDate='2025-01-01';c.technicals=technicals(Array.from({length:240},(_,i)=>100+i));assert.equal(analyzeCompany(c,assumptions(c)).recommendation,'WAIT');});
+test('Invalid terminal assumptions cannot bypass validation through fallback',()=>{const c=sample();const a={...assumptions(c),g:.25};assert.equal(analyzeCompany(c,a).recommendation,'WAIT');});
+test('Official zero-volume quote never refreshes last-trade date',()=>{const c=sample();c.priceDate='2025-01-01';const x=reconcileQuote(c,{Date:'2026-10-23T00:00:00',Close:50,Volume:0,ListedShares:1e9});assert.equal(x.priceDate,'2025-01-01');assert.equal(x.summaryDate,'2026-10-23');assert.equal(x.shares,1);assert.equal(analyzeCompany(x,assumptions(x)).recommendation,'WAIT');});
+test('Every directory issuer has a transparent outcome despite unavailable feeds',()=>{const rows=coverageRows({issuers:[{ticker:'ABCD'},{ticker:'EFGH'}]},{companies:[]});assert.equal(rows.length,2);assert.ok(rows.every(x=>x.recommendation==='WAIT'));});

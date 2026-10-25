@@ -1,5 +1,7 @@
 # RALVEN 5 operating guide
 
+BMRI is the submitted course case. Open the application with `?case=BMRI-2026-10-25` to reproduce its dated inputs and simulation settings, or `?ticker=BMRI` to open the currently saved issuer snapshot. The archived case is labelled explicitly; refreshing it queries newer sources and changes the research basis.
+
 Run with Node.js 24 or newer: `node server.mjs` from this folder, then open `http://127.0.0.1:4173/`. No npm install is needed for the normal application; browser export libraries are vendored. Network access is required for new public-source queries. Saved snapshots support offline inspection. No paid data subscription is bundled.
 
 1. Enter a four-character IDX ticker. Opening a company loads its saved evidence; **Refresh data** requests new public market/filing data. Inspect quote and financial dates separately.

@@ -1,0 +1,11 @@
+import fs from 'node:fs/promises';
+import {evidenceBundle,packEvidenceCatalog} from '../src/evidence.mjs';
+const file='public/data/evidence.json',disk=JSON.parse(await fs.readFile(file,'utf8')),catalog={...disk,companies:Object.fromEntries(Object.keys(disk.companies).map(t=>[t,evidenceBundle(disk,t)]))};
+const b=catalog.companies.AMMN,at='2026-10-24T14:20:00.000Z';
+const issuerUrl='https://www.amman.co.id/rails/active_storage/blobs/proxy/eyJfcmFpbHMiOnsiZGF0YSI6NDk3OCwicHVyIjoiYmxvYl9pZCJ9fQ%3D%3D--50df1975317d5d37d39e6c868f5b05f51f29bb1d/FY%202025%20EARNINGS%20PRESENTATION.pdf?disposition=inline';
+const sourceUrl='https://stockanalysis.com/quote/idx/AMMN/financials/income-statement/';
+b.observations=b.observations.filter(o=>!['issuer-presentation-reviewed','stockanalysis-reviewed'].includes(o.sourceId));
+b.observations.push({field:'ebitda',value:1057,currency:'USD',unit:'millions',period:'2025-12-31',duration:365,definition:'issuer_defined_ebitda',sourceId:'issuer-presentation-reviewed',sourceGroup:'issuer:AMMN',sourceType:'primary',url:issuerUrl,locator:'Printed pages 15–16; issuer-defined EBITDA, reconciliation required',publishedAt:'2026-03-26',retrievedAt:at});
+for(const [field,value,definition]of [['ebitda',996.86,'ebitda'],['revenue',1847,'revenue'],['netIncome',248.98,'parent_profit']])b.observations.push({field,value,currency:'USD',unit:'millions',period:'2025-12-31',duration:365,definition,sourceId:'stockanalysis-reviewed',sourceGroup:'spglobal-via-stockanalysis',sourceType:'aggregator',url:sourceUrl,locator:'Manual cross-check of displayed FY2025 column; S&P Global attributed by distributor',publishedAt:null,retrievedAt:at});
+b.attempts=b.attempts.filter(x=>x.source!=='Stock Analysis reference');b.attempts.push({source:'Stock Analysis reference',status:'manual snapshot',message:'AMMN FY2025 figures checked against the public page. Direct automated access returned HTTP 403; this is a dated manual reference, not a working live connector.',at});
+await fs.writeFile(file,JSON.stringify(packEvidenceCatalog(catalog)));console.log('Added cited AMMN issuer and distributor reference observations; no valuation overrides.');

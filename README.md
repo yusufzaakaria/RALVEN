@@ -1,91 +1,64 @@
 # RALVEN — Indonesian Equity Valuation
 
-A functioning valuation web application for the **Digital Business Valuation midterm project**.
+Functional web application for the Digital Business Valuation midterm project by Yusuf Zakaria. The submitted company case is **BMRI — PT Bank Mandiri (Persero) Tbk**.
 
-**[Open the public application](https://ralven-equity-terminal.airycoot8.chatgpt.site)** · **[Download the full source and submission package](https://github.com/yusufzaakaria/RALVEN/raw/refs/heads/main/RALVEN_Submission_v5.zip)**
+- [Public application](https://ralven-equity-terminal.airycoot8.chatgpt.site)
+- [Reproduce the archived BMRI case](https://ralven-equity-terminal.airycoot8.chatgpt.site/?case=BMRI-2026-10-25)
+- [Open BMRI using the current saved snapshot](https://ralven-equity-terminal.airycoot8.chatgpt.site/?ticker=BMRI)
+- [BMRI model and report clarifications](BMRI_Deliverable_Alignment.md)
 
-## Submission files
+## BMRI deliverables
 
-| File | Contents |
-|---|---|
-| [Full application and submission ZIP](RALVEN_Submission_v5.zip) | Runnable source, original logo/assets, saved financial evidence, calculation engine, tests and supporting deliverables |
-| [Example Excel valuation model](RALVEN_BBCA_Model.xlsx) | Linked calculation formulas, assumptions, annual forecast paths and validation guards |
-| [Excel input template](RALVEN_Input_Template.xlsx) | Structured company, historical, assumption and peer inputs |
-| [English valuation report](RALVEN_BBCA_2026-10-25_en_v5.pdf) | Method results, forecasts, sensitivity, Monte Carlo and source appendices |
-| [Indonesian valuation report](RALVEN_BBCA_2026-10-25_id_v5.pdf) | Indonesian report for the same example |
-| [Valuation and model presentation](RALVEN_Valuation_and_Model_Report_v5.pptx) | 14 content slides plus cover, references and appendix |
-| [User guide](User_Guide.md) | Setup, inputs, updates, calculations, exports and operating instructions |
-| [Implementation status](Implementation_Status.md) | Completed audit repairs, remaining work and material limitations |
+The archived case uses a 25 October 2026 valuation date, a Rp3,900 observed close dated 23 October, and the TTM financial basis ended 30 June 2026. It reproduces Rp6,447 dividend-discount value, Rp4,050 relative value, and Rp5,248 weighted fair value using 50% / 50% weights. The conditional model indication is BUY at +34.6% upside. These are dated model results, not current prices or independently verified investment advice.
 
-The source is supplied inside the ZIP. Extract it before running; the extracted application root contains package.json, server.mjs, src/, public/ and tests/. The submission/ folder contains the supporting model/report files.
+- [Formula Excel workbook](RALVEN_BMRI_Model.xlsx)
+- [English report](RALVEN_BMRI_2026-10-25_en_v5.pdf)
+- [Indonesian report](RALVEN_BMRI_2026-10-25_id_v5.pdf)
+- [Editable supporting presentation](RALVEN_BMRI_Supporting_Report_5.0.1.pptx): 14 content slides, plus cover, references and appendix
+- [Excel input template](RALVEN_Input_Template.xlsx)
+- [User guide](User_Guide.md)
+- [Outstanding implementation work](Implementation_Status.md)
+
+The supporting presentation and clarifications were prepared after submission. They do not replace the original submitted PDF. In that PDF, the Rp4,162 bear case was labelled with an incorrect market comparison: it implies **+6.7%** versus Rp3,900. The detailed note also explains the multi-period DDM formula and separates DDM values from blended scenarios.
 
 ## Run locally
 
-Install **Node.js 24 or newer**, extract RALVEN_Submission_v5.zip, then run from the extracted application folder:
+Install Node.js 24 or later. Clone or download this repository, then run from its root:
 
-    node server.mjs
+```sh
+node setup.mjs
+cd application
+node server.mjs
+```
 
-Open **http://127.0.0.1:4173/**. No npm install is required for the normal application. Browser export libraries are vendored.
+Open the local URL printed by the server. `setup.mjs` verifies the SHA-256 of `RALVEN_Application_5.0.1.zip` and extracts the complete application into `application/`. It refuses to overwrite modified files. Calculation modules and tests are also directly browsable in that folder on GitHub. No paid service or Python installation is required to run the bundled Node application.
 
-PowerShell example after downloading the ZIP:
+```sh
+node --test tests/*.test.mjs
+node build.mjs
+node scripts/validate-artifact.mjs
+```
 
-    Expand-Archive -LiteralPath .\RALVEN_Submission_v5.zip -DestinationPath .\application
-    Set-Location .\application
-    node server.mjs
+The release has 108 passing regression tests. The Excel formula chain is separately checked against the application calculation engine. No repository write automation is installed.
 
-To verify calculations or build the hosted Worker, run inside that same folder:
+## Functionality
 
-    node --test tests/*.test.mjs
-    node build.mjs
-    node scripts/validate-artifact.mjs
+Ticker lookup and documented Excel import feed separate inputs, analyst assumptions, deterministic calculations and outputs. Models include corporate FCFF DCF, bank DDM, relative valuation and a labelled residual-income fallback where eligible. The platform explains method eligibility and weights, compares value with observed price, and generates scenario matrices, driver tornado charts and seeded Monte Carlo distributions. It supports English/Indonesian, light/dark themes, Excel formulas, PDF reports and saved research workspaces.
 
-Network access is needed for new public-source requests. Saved source snapshots support dated/offline inspection. No paid data subscription is bundled.
+For BMRI, DDM discounts five annual common-equity distributions and a terminal distribution at cost of equity. Corporate FCFF/WACC and the enterprise-to-equity debt bridge are not used for this bank model. Relative valuation uses eligible bank P/E and P/B observations. Forecasts, payout, terminal ROE and peer economic comparability require analyst review.
 
-## Valuation and research functions
+## Data and limitations
 
-- Observed market value and enterprise-to-common-equity reconciliation.
-- Corporate FCFF DCF, financial-equity DDM, eligible peer P/E, P/B, EV/EBITDA and EV/Sales; documented residual-income fallback.
-- Transparent method eligibility and weighting; BUY/HOLD/SELL thresholds; separate technical signals and WAIT outcomes.
-- Explicit rolling next-twelve-month forecasts, five editable annual driver paths, assumption provenance and named scenarios.
-- Peer selection controls, financial-quality charts, valuation football field, applicable sensitivity matrices, tornado charts and seeded Monte Carlo.
-- Source reconciliation and original statement explorer; missing, partial, annual-only and inapplicable values remain distinct.
-- Supplemental analyst-input SOTP, finite-life mining and bank common-capital capacity tools.
-- Formula-based Excel exports, bilingual PDF reports and portable JSON workspaces.
-- English/Indonesian, light/dark themes, compact mode, dated market ticker/sparklines and contact links.
+Sources include IDX consolidated XBRL filings, issuer reports and Yahoo Finance observations. Source dates, original amounts, currency, units and evidence status remain visible. Compatible definitions and periods are reconciled; conflicting observations are not averaged. TTM flows use prior annual plus current YTD minus comparable prior YTD.
 
-## Data coverage and interpretation
+The bundled directory contains 962 records; supported primary archives cover 924. This does **not** mean complete financial statements for every issuer. Missing notes, leases, D&A, unavailable denominators and inapplicable sector fields remain distinguished. There are 683 eligible fundamental valuations with scenario, sensitivity, tornado and simulation output. Technical-only signals and WAIT outcomes are labelled when fundamental evidence is inadequate. A recommendation is not forced by filling missing data with zeros.
 
-Release **5.0.0**, prepared **25 October 2026**. Market and financial observations retain their own dates.
+Refresh depends on public-source connectivity and may encounter access restrictions or rate limits. The standalone server uses local persistence; hosted snapshots use the configured R2 storage. Archived case links remain dated and must not be described as live market data. Monte Carlo inputs are analyst settings, not empirically calibrated investment probabilities.
 
-The saved directory contains **962 IDX issuers**. The primary archive covers **924 issuers**, **1,804 filings** and **419,625 numeric non-dimensional facts**. A targeted retry recovered no additional supported primary statements for the remaining 38 issuers.
+AI assisted software development and documentation. Financial calculations are deterministic. See the source modules, formula workbook, evidence appendix and implementation-status document for calculation boundaries and remaining audit work.
 
-The saved audit found **683 eligible fundamental or conditional valuations**; all 683 have calculated sensitivity, tornado and Monte Carlo output. Other records retain explicitly labelled technical signals or WAIT where essential evidence is unavailable. An outcome for every ticker does **not** mean complete financial statements for every ticker.
+## Submission history
 
-Default forecasts, simulation sigmas, correlations and method weights are disclosed analyst assumptions. Simulation describes conditional model uncertainty, not probabilities of future market prices. Missing facts are not invented or silently converted to zero.
+The `submission-baseline-2026-10-25` branch and original `RALVEN_Submission_v5.zip` preserve the earlier submission materials. Older BBCA reports and presentation are supporting application examples, not the selected BMRI submission case. Later commits identify subsequent improvements. The repository and website addresses remain the same.
 
-## Validation and source structure
-
-The local suite passed **105 regression tests**. Independent spreadsheet recalculation matched corporate DCF, bank DDM, relative and residual-income cases, including edited annual paths. Invalid payout inputs withheld all four recommendations. Source snapshots were persisted and read back from the hosted application.
-
-In the extracted source:
-
-| Path | Purpose |
-|---|---|
-| src/ | Inputs, validation, valuation, sensitivity, simulation and workbook logic |
-| public/ | Front end, original logo, fonts, export libraries and saved data |
-| tests/ | Calculation and source-boundary regression tests |
-| server.mjs / server-v5.mjs | Local application server |
-| build.mjs / build-v5.mjs | Hosted Worker build |
-| USER_GUIDE_5.md / RELEASE_5.md | Operating guide and implementation status |
-
-Validation does not certify every external disclosure or forecast. Unattended market-wide refresh, empirical calibration, additional sector models and full point-in-time fundamental backtesting remain documented work.
-
-## Updates and academic disclosure
-
-GitHub commit history records actual upload and later modification times. This repository and the live website may receive clearly documented improvements after the links were submitted. A later update is not represented as having existed at an earlier submission time; course policy determines which version is assessed.
-
-AI assisted software development and documentation. Runtime financial facts are retrieved or imported; deterministic code produces the calculations and model decisions.
-
-Public-source references: [IDX](https://www.idx.id/), [Yahoo Finance](https://finance.yahoo.com/), [IDX financial-statement retrieval reference](https://github.com/celeebi/IDX_GetFinancialStatement), and [Damodaran financial-service valuation](https://pages.stern.nyu.edu/~adamodar/pdfiles/country/finsvce.pdf).
-
-**Yusuf Zakaria** · [yusufzaakaria@gmail.com](mailto:yusufzaakaria@gmail.com) · [LinkedIn](https://www.linkedin.com/in/yusuf-zakaria)
+Contact: [yusufzaakaria@gmail.com](mailto:yusufzaakaria@gmail.com) · [LinkedIn](https://www.linkedin.com/in/yusuf-zakaria)
