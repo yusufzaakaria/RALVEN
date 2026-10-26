@@ -28,7 +28,7 @@ for(const issuer of directory.issuers){
     const row=[taxonomyMap.get(fact.tag),columnMap.get(ck),fact.value],key=JSON.stringify(row);if(seen.has(key))continue;seen.add(key);if(fact.value===null)(unreportedColumns[row[1]]??=[]).push(row[0]);else rows.push(row);
    }
    const numeric=rows.length,unreported=Object.values(unreportedColumns).reduce((s,ids)=>s+ids.length,0);facts+=numeric;nil+=unreported;files++;
-   reports.push({url:f.url,publishedAt:f.publishedAt||null,retrievedAt:parsed.retrievedAt,periods:parsed.periods,columns,rows,nil:unreportedColumns,notes:parsed.statement.notes||[],noteCoverage:parsed.statement.noteCoverage,numeric,unreported});
+   reports.push({url:f.url,publishedAt:f.publishedAt||null,retrievedAt:parsed.retrievedAt,periods:parsed.periods,columns,rows,nil:unreportedColumns,capitalSchedule:parsed.statement.capitalSchedule,notes:parsed.statement.notes||[],noteCoverage:parsed.statement.noteCoverage,numeric,unreported});
   }catch(e){errors.push({url:f.url,message:e.message});}
  }
  const content=JSON.stringify({ticker,reports,errors,scope:summary.scope}),size=Buffer.byteLength(content);bytes+=size;gzipBytes+=gzipSync(content,{level:9}).length;

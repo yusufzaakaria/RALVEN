@@ -7,21 +7,17 @@ Functional web application for the Digital Business Valuation midterm project by
 - [Open BMRI using the current saved snapshot](https://ralven-equity-terminal.airycoot8.chatgpt.site/?ticker=BMRI)
 - [BMRI model and report clarifications](BMRI_Deliverable_Alignment.md)
 
-## Current release: 5.3.1
+## Current release: 5.4.0
 
-Period-matched source repair and direct Data-menu access on narrow screens, released after submission on 26 October 2026. [Changes, measured gaps, validation and remaining work](Remediation_Progress.md).
+Finalized 27 October 2026 after submission. [Measured changes and remaining work](Remediation_Progress.md).
 
-Queried supplemental statements for all 962 directory issuers: 650 returned 31,890 explicit dated records and 312 returned none of the requested fields. These are Yahoo aggregator records, separately identified from IDX filings. Original quote/filing dates remain unchanged; no quarterly multiplication or zero-for-absence inference is used. [Issuer-level refresh audit](https://ralven-equity-terminal.airycoot8.chatgpt.site/data/source-refresh.json).
+Capital-schedule checks recover explicit preferred-stock closing zeros for 84 issuers on the selected financial basis, reducing missing preferred inputs from 850 to 766. Each accepted value matches three same-filing equity controls. Nil, opening balances and unsupported assumed zeros remain excluded. Data, Excel and PDF expose the controls.
 
-Missing selected-basis debt inputs decreased from 333 to 157, EBITDA from 737 to 316 and capex from 821 to 372. Unsupported legacy preferred/minority zero assumptions are quarantined; preferred gaps consequently increased. Full D&A remains separate from depreciation-only figures. Same-origin Yahoo records do not count as independent corroboration.
+Method selection excludes conflicted inputs before selecting intrinsic or relative valuation. DCF plus relative coverage increases from 69 to 76. Total two-method coverage changes from 475 to 467 as other disputed methods are excluded; residual income is not cash-flow DCF. 674 supported fundamental analyses pass chart checks.
 
-Data now exposes 5,407 selected financing, capital and depreciation note excerpts for 726 issuers, with source periods/contexts and search. Excel includes source-note and rejected-default appendices; PDF indexes supporting notes. Text does not automatically become valuation input. Primary statement archives still cover 924 issuers; this is not complete financial data for every company.
+177 automated tests and ten independent Excel formula cases pass. Primary numeric archives cover 924 of 962 issuers; full D&A remains missing for 848 on the selected basis. No all-company completeness or investment-grade recommendation claim is made. [Capital extraction audit](https://ralven-equity-terminal.airycoot8.chatgpt.site/data/capital-audit.json).
 
-161 tests pass, including archived BMRI values, period/definition controls, zero versus missing, source conflicts and recovery checks. 676 supported fundamental analyses pass sensitivity-center, tornado and simulation checks. The package records 475 two-method assessments: 69 DCF + relative and 406 residual income + relative. Accounting-based residual income is not cash-flow DCF. Conditional/blocked outcomes remain explicit; a second method or a trading rating is not fabricated.
-
-Cash-funded operating recovery from version 5.2 remains available in Data/Forecast. [Synthetic recovery example](https://ralven-equity-terminal.airycoot8.chatgpt.site/?case=RECOVERY-DEMO) uses fictional inputs solely for inspection. Remaining work includes claim/D&A/PDF verification, source-conflict resolution, issuer-specific forecast review and specialized sector models.
-
-Original BMRI submission materials and the baseline branch remain preserved. Later source and documentation are versioned rather than backdated.
+The original submitted BMRI case and submission baseline remain preserved. Later work is versioned rather than backdated.
 
 ## BMRI deliverables
 
@@ -47,7 +43,7 @@ cd application
 node server.mjs
 ```
 
-Open the local URL printed by the server. `setup.mjs` verifies the SHA-256 of `RALVEN_Application_5.3.1.zip` and extracts the complete application into `application/`. It refuses to overwrite modified files. Calculation modules and tests are also directly browsable in that folder on GitHub. No paid service or Python installation is required to run the bundled Node application.
+Open the local URL printed by the server. `setup.mjs` verifies the SHA-256 of `RALVEN_Application_5.4.0.zip` and extracts the complete application into `application/`. It refuses to overwrite modified files. Calculation modules and tests are also directly browsable in that folder on GitHub. No paid service or Python installation is required to run the bundled Node application.
 
 ```sh
 node --test tests/*.test.mjs
@@ -55,7 +51,7 @@ node build.mjs
 node scripts/validate-artifact.mjs
 ```
 
-The release has 161 passing regression tests. The Excel formula chain is separately checked against the application calculation engine. No repository write automation is installed.
+The release has 177 passing regression tests. The Excel formula chain is separately checked against the application calculation engine. No repository write automation is installed.
 
 ## Functionality
 
@@ -67,7 +63,7 @@ For BMRI, DDM discounts five annual common-equity distributions and a terminal d
 
 Sources include IDX consolidated XBRL filings, issuer reports and Yahoo Finance observations. Source dates, original amounts, currency, units and evidence status remain visible. Compatible definitions and periods are reconciled; conflicting observations are not averaged. TTM flows use prior annual plus current YTD minus comparable prior YTD.
 
-The bundled directory contains 962 records; supported primary archives cover 924. This does **not** mean complete financial statements for every issuer. Missing notes, leases, D&A, unavailable denominators and inapplicable sector fields remain distinguished. There are 676 supported fundamental analyses with scenario, sensitivity, tornado and simulation output. Technical-only signals and WAIT outcomes are labelled when fundamental evidence is inadequate. A recommendation is not forced by filling missing data with zeros.
+The bundled directory contains 962 records; supported primary archives cover 924. This does **not** mean complete financial statements for every issuer. Missing notes, leases, D&A, unavailable denominators and inapplicable sector fields remain distinguished. There are 674 supported fundamental analyses with scenario, sensitivity, tornado and simulation output. Technical-only signals and WAIT outcomes are labelled when fundamental evidence is inadequate. A recommendation is not forced by filling missing data with zeros.
 
 Refresh depends on public-source connectivity and may encounter access restrictions or rate limits. The standalone server uses local persistence; hosted snapshots use the configured R2 storage. Archived case links remain dated and must not be described as live market data. Monte Carlo inputs are analyst settings, not empirically calibrated investment probabilities.
 

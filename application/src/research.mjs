@@ -2,7 +2,7 @@ import {valuationDateToday} from './release.mjs';
 import {residualIncome} from './residual.mjs';
 import {methodAssessment} from './method-assessment.mjs';
 import {methodProfile} from './method-registry.mjs';
-import {comparablePeer,multipleFields,multipleCaps,multipleRatio,bridgeComplete,extractiveCompany,assetHeavyCompany} from './comparables.mjs';
+import {comparablePeer,multipleFields,multipleCaps,multipleRatio,multipleInputConflict,bridgeComplete,extractiveCompany,assetHeavyCompany} from './comparables.mjs';
 import {prepareEvidence,evidenceAssessment} from './evidence.mjs';
 import {evaluate,defaults,median,financial,capital,relativeAt} from './engine.mjs';
 export function selectPeers(c,pool=c.peers||[]){
@@ -15,8 +15,10 @@ function calculateCompany(subject,a=assumptions(subject),{grid=true}={}){
  const c={...subject,peers:selectPeers(subject)};
  const base=evaluate(c,a,{grid});base.basis='FUNDAMENTAL';base.engine='core';
  if(c.sourceScaleIssues?.length)return {...base,valid:false,basis:'UNRATED',engine:'unavailable',fair:null,low:null,high:null,upside:null,weight:0,eligible:false,dcf:null,relative:{peers:[],legs:[],price:null},scenarios:{bear:null,base:null,bull:null},sensitivity:[],rationale:'Primary comparative statements have inconsistent scale factors. Valuation is withheld until the original reporting units are reconciled.'};
- const disputedBridge=!financial(c)&&['debt','cash','minority','preferred'].some(k=>['CONFLICT','DEFINITION'].includes(c.evidence?.rows?.find(x=>x.field===k)?.status));
- const relativeOnly=methodProfile(c).family==='holding'||disputedBridge||extractiveCompany(c)||(!financial(c)&&c.capexRatio>.35&&!base.recovery?.eligible);
+ const disputed=key=>['CONFLICT','DEFINITION'].includes(c.evidence?.rows?.find(x=>x.field===key)?.status);
+ const disputedBridge=!financial(c)&&['debt','cash','minority','preferred'].some(disputed);
+ const disputedIntrinsic=(financial(c)?['netIncome','bookEquity']:['revenue','ebit','debt','cash','minority','preferred']).some(disputed);
+ const relativeOnly=methodProfile(c).family==='holding'||disputedIntrinsic||extractiveCompany(c)||(!financial(c)&&c.capexRatio>.35&&!base.recovery?.eligible);
  if(base.valid&&base.eligible&&!relativeOnly){base.rationale=`${financial(c)?'Financial services use DDM at cost of equity; no corporate net-debt bridge.':base.stable?'Stable positive operating cash flow supports greater intrinsic weight.':'Unproven cash-flow stability reduces intrinsic emphasis when peers qualify.'} ${base.recovery?.eligible?'Reviewed cash-funded recovery permits the documented negative early FCFF; annual financing payments constrain liquidity without a second value deduction. ':''}Actual eligible weights: ${Math.round(base.weight*100)}% intrinsic / ${Math.round((1-base.weight)*100)}% industry relative. ${!base.eligible?'Intrinsic method excluded: forecast cash flow or equity value is not positive.':base.relative.price===null?'Relative method excluded: fewer than three eligible peers per multiple.':''}`;return base;}
  const age=(Date.parse(c.valuationDate)-Date.parse(c.priceDate))/86400000,reportAge=(Date.parse(c.valuationDate)-Date.parse(c.period))/86400000;
  const hard=!(c.price>0)||!Number.isFinite(age)||age<0||age>7||c.currency!=='IDR'||c.units!=='IDR bn / shares bn';
@@ -29,12 +31,12 @@ function calculateCompany(subject,a=assumptions(subject),{grid=true}={}){
   // Direct equity multiples do not require a corporate EV bridge.
   // P/B is an asset-heavy/financial fallback, never a fabricated NAV or DCF.
   const specs=financial(c)?['pb','pe']:c.netIncome>0?['pe',...(bridgeComplete(c)&&c.ebitda>0?['evEbitda']:[])]:bridgeComplete(c)&&c.revenue>0?['evSales']:assetHeavyCompany(c)&&c.bookEquity>0?['pb']:[];
-  for(const metric of specs.filter(metric=>!disputedBridge||!metric.startsWith('ev'))){const key=multipleFields[metric],used=peers.filter(p=>multipleRatio(p,metric)!==null&&(metric!=='pb'||financial(c)||c.netIncome>0||Number.isFinite(p.netIncome)&&p.netIncome<=0)),values=used.map(p=>multipleRatio(p,metric)),mult=median(values);let price=null;
+  for(const metric of specs.filter(metric=>!multipleInputConflict(c,metric))){const key=multipleFields[metric],used=peers.filter(p=>multipleRatio(p,metric)!==null&&(metric!=='pb'||financial(c)||c.netIncome>0||Number.isFinite(p.netIncome)&&p.netIncome<=0)),values=used.map(p=>multipleRatio(p,metric)),mult=median(values);let price=null;
    if(values.length>=3&&c[key]>0){price=metric.startsWith('ev')?(mult*c[key]+c.cash-c.debt-c.minority-c.preferred)/c.shares:mult*c[key]/c.shares;}
    if(price>0)legs.push({metric,multiple:mult,count:values.length,price,peerTickers:used.map(p=>p.ticker)});
   }
   if(legs.length){const fair=legs.reduce((s,x)=>s+x.price,0)/legs.length,upside=fair/c.price-1;
-   const methodNote=methodProfile(c).family==='holding'?'Investment holding: generic DDM excluded. Trailing equity multiples are a conditional reference; use the NAV/SOTP tool with attributable assets and parent claims. ':disputedBridge?'DCF and EV multiples excluded: unresolved capital-claim discrepancies. Direct equity pricing uses undisputed earnings/book inputs. ':extractiveCompany(c)?'Commodity producer: use relative pricing; generic perpetual DCF excluded. Trailing earnings are cycle-sensitive, not normalized resource NAV. ':relativeOnly?'Expansion capex prevents a generic perpetual DCF; use eligible equity/enterprise multiples. ':'';
+   const methodNote=disputedIntrinsic&&!disputedBridge?'Cash-flow DCF excluded: disputed operating or equity inputs. Only methods with undisputed required inputs are used. ':methodProfile(c).family==='holding'?'Investment holding: generic DDM excluded. Trailing equity multiples are a conditional reference; use the NAV/SOTP tool with attributable assets and parent claims. ':disputedBridge?'DCF and EV multiples excluded: unresolved capital-claim discrepancies. Direct equity pricing uses undisputed earnings/book inputs. ':extractiveCompany(c)?'Commodity producer: use relative pricing; generic perpetual DCF excluded. Trailing earnings are cycle-sensitive, not normalized resource NAV. ':relativeOnly?'Expansion capex prevents a generic perpetual DCF; use eligible equity/enterprise multiples. ':'';
    const caveat=legs.some(x=>x.metric==='pb')&&!financial(c)?' Asset-heavy P/B fallback: accounting equity is not liquidation value; loss-making peers are used, and asset quality requires caution.':'';
    relativeCandidate={...base,valid:true,engine:'relative',basis:'FUNDAMENTAL',fair,low:relativeAt(c,{legs},.8),high:relativeAt(c,{legs},1.2),upside,weight:0,eligible:false,relative:{peers:peers.filter(p=>legs.some(x=>x.peerTickers.includes(p.ticker))),legs,price:fair},scenarios:{bear:relativeAt(c,{legs},.8),base:fair,bull:relativeAt(c,{legs},1.2)},sensitivity:[],checks:checks.map(x=>x.level==='error'?{...x,level:'warning',scope:'excluded DCF'}:x),recommendation:upside>=a.buy?'BUY':upside<=a.sell?'SELL':'HOLD',rationale:methodNote+'100% industry-relative pricing with at least three eligible observations per multiple. Bear/bull: peer multiples -20%/+20%, with EV-to-equity claims reconciled.'+caveat};
   }
@@ -43,7 +45,7 @@ function calculateCompany(subject,a=assumptions(subject),{grid=true}={}){
  // When a profitable issuer has too few usable peers, use an equity model
  // supported by parent earnings and book equity rather than guessed EV claims.
  const positiveYears=(c.history||[]).filter(h=>h.basis!=='TTM'&&h.netIncome>0).length;
- if(!hard&&reportAge>=0&&reportAge<=550&&!extractiveCompany(c)&&!['holding','financial-review'].includes(methodProfile(c).family)&&c.netIncome>0&&c.bookEquity>0&&positiveYears>=2){
+ if(!hard&&reportAge>=0&&reportAge<=550&&!['netIncome','bookEquity'].some(disputed)&&!extractiveCompany(c)&&!['holding','financial-review'].includes(methodProfile(c).family)&&c.netIncome>0&&c.bookEquity>0&&positiveYears>=2){
   const ri=residualIncome(c,a);if(ri?.price>0){
    const weight=relativeCandidate?.relative.price>0?.5:1,rel=relativeCandidate?.relative||{peers:c.peers,legs:[],price:null};
    const combine=(value,factor)=>Number.isFinite(value)?weight*value+(1-weight)*(relativeAt(c,rel,factor)??0):null;

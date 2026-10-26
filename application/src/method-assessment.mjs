@@ -14,7 +14,7 @@ export function methodAssessment(c,a,r){
  if(profile.family==='holding')add('SECTOR_SOTP','Provide attributable asset DCF/SOTP and parent capital claims.','Lengkapi DCF/SOTP aset yang dapat diatribusikan serta klaim induk.');
  if(extractiveCompany(c))add('SECTOR_RESOURCE','Provide reserves, saleable production, mine life, commodity assumptions, funding and closure cash flows.','Lengkapi cadangan, produksi, umur tambang, asumsi komoditas, pendanaan, dan arus kas penutupan.');
  if(!financial(c)&&c.capexRatio>.35&&!base.recovery?.eligible)add('EXPANSION_SCHEDULE','Review expansion and maintenance capex, recovery and financing before using generic FCFF.','Tinjau capex ekspansi/pemeliharaan, pemulihan, dan pendanaan sebelum memakai FCFF generik.');
- if(!financial(c)&&required.some(key=>['CONFLICT','DEFINITION'].includes(find(key)?.status)))add('CLAIM_CONFLICT','Reconcile used operating inputs and capital claims.','Rekonsiliasi input operasi dan klaim modal terpakai.');
+ if(required.some(key=>['CONFLICT','DEFINITION'].includes(find(key)?.status)))add('CLAIM_CONFLICT',"Reconcile the cash-flow model's operating/equity inputs and capital claims.",'Rekonsiliasi input operasi dan klaim modal terpakai.');
  if(base.valid&&!base.eligible)add('CASH_FLOW_ELIGIBILITY','Review cash-flow recovery, terminal profitability and financing. Current generic model has no supported intrinsic value.','Tinjau pemulihan arus kas, profitabilitas terminal, dan pendanaan. Model generik belum memiliki nilai intrinsik yang didukung.');
  if(c.recoveryPlan)for(const reason of base.recovery?.reasons||[])reasons.push(reason);
  const cashFlowAvailable=base.valid&&base.eligible&&!reasons.length;

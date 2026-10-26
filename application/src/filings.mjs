@@ -1,4 +1,5 @@
 import {extractFilingNotes} from './filing-notes.mjs';
+import {extractCapitalSchedule} from './capital-schedule.mjs';
 // Conservative IDX XBRL adapter. Facts already use full currency units: the
 // presentation rounding label must NEVER be applied a second time.
 const filingRoot='https://www.idx.id';
@@ -87,10 +88,12 @@ export function parseIdxInstance(xml,{ticker,url,publishedAt,retrievedAt=new Dat
   const dep=observations.find(o=>o.field==='da'&&o.period===op.period&&o.duration===op.duration&&o.currency===op.currency&&o.start===op.start);
   if(dep)observations.push({...op,field:'ebitda',definition:'ebitda',value:op.value+dep.value,locator:'Derived: operating income + full D&A',calculation:{kind:'sum',formula:'EBIT + full D&A',components:[{tag:op.locator,value:op.value,sign:1},{tag:dep.locator,value:dep.value,sign:1}]}});
  }
+ const capitalSchedule=extractCapitalSchedule(xml,{ticker,url,publishedAt,retrievedAt});
+ observations.push(...capitalSchedule.observations);
  if(observations.length<3)throw Error('Too few supported consolidated XBRL fields');
  // Detach regex slices: cached observations must not retain entire XML documents.
  const selectedNotes=includeStatements?extractFilingNotes(xml):null;
- const statement=includeStatements?{notes:selectedNotes?.notes||[],noteCoverage:selectedNotes?{matching:selectedNotes.matching,omitted:selectedNotes.omitted,characters:selectedNotes.characters,scope:selectedNotes.scope}:null,facts:facts.map(f=>({tag:f.tag,context:f.context,period:f.period,start:f.start||null,unit:f.currency||'unknown',value:f.value})),unreported:reported.filter(f=>f.nil).map(f=>({tag:f.tag,context:f.context,period:f.period,start:f.start||null,unit:f.currency||'unknown',value:null}))}:undefined;
+ const statement=includeStatements?{capitalSchedule:{rows:capitalSchedule.rows,scope:capitalSchedule.scope},notes:selectedNotes?.notes||[],noteCoverage:selectedNotes?{matching:selectedNotes.matching,omitted:selectedNotes.omitted,characters:selectedNotes.characters,scope:selectedNotes.scope}:null,facts:facts.map(f=>({tag:f.tag,context:f.context,period:f.period,start:f.start||null,unit:f.currency||'unknown',value:f.value})),unreported:reported.filter(f=>f.nil).map(f=>({tag:f.tag,context:f.context,period:f.period,start:f.start||null,unit:f.currency||'unknown',value:null}))}:undefined;
  return JSON.parse(JSON.stringify({ticker,observations,periods:[...new Set(observations.map(o=>o.period))].sort().reverse(),retrievedAt,url,publishedAt,...(statement?{statement}:{})}));
 }
 export function idxReportUrl(ticker,year,period='audit'){return `${filingRoot}/primary/ListedCompany/GetFinancialReport?indexFrom=1&pageSize=5&year=${year}&reportType=rdf&EmitenType=s&periode=${period}&kodeEmiten=${ticker}`;}

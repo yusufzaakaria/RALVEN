@@ -47,3 +47,11 @@ In **Data**, choose the filing in Source Statement Explorer, then use **Review f
 Quarterly flows are never multiplied by four. Reported TTM flows are labelled separately from IDX annual + current YTD - prior comparable YTD calculations. Annual figures are not relabelled to a newer balance date. Normalized EBITDA and depreciation-only figures do not establish reported EBITDA or full D&A. Material conflicts and a debt total below known primary borrowing components require review.
 
 The dated all-issuer supplemental refresh audit is available at `/data/source-refresh.json`; the updated data/chart gaps remain at `/data/completeness.csv`. These files document availability, not completion of a company-by-company analyst review. See RELEASE_5_3.md for measured changes and remaining work.
+
+## Capital controls and method eligibility in version 5.4
+
+In Data, choose a filing in Source statement explorer and find Preferred-stock closing balance checks. Expand a date to inspect consolidated equity, parent equity and common-stock agreement. Only an explicit preferred-stock closing zero with all three controls passing supplements an absent face value. REVIEW is insufficient; positive nominal balances require claim-rights review. Opposing face values remain conflicts.
+
+Excel includes Capital Schedule Checks with original references and residual formulas. PDF evidence includes controls. Download /data/capital-audit.json for the extraction audit. These controls do not establish complete statements.
+
+Each method excludes its own disputed inputs before selection. Unrelated conflicts remain visible without blocking methods that do not use them. Excel freezes source-policy exclusions; refresh evidence and re-export after resolving a dispute. Residual income is not cash-flow DCF. See RELEASE_5_4.md for measured coverage and remaining work.
