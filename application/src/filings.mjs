@@ -1,3 +1,4 @@
+import {extractFilingNotes} from './filing-notes.mjs';
 // Conservative IDX XBRL adapter. Facts already use full currency units: the
 // presentation rounding label must NEVER be applied a second time.
 const filingRoot='https://www.idx.id';
@@ -88,7 +89,8 @@ export function parseIdxInstance(xml,{ticker,url,publishedAt,retrievedAt=new Dat
  }
  if(observations.length<3)throw Error('Too few supported consolidated XBRL fields');
  // Detach regex slices: cached observations must not retain entire XML documents.
- const statement=includeStatements?{facts:facts.map(f=>({tag:f.tag,context:f.context,period:f.period,start:f.start||null,unit:f.currency||'unknown',value:f.value})),unreported:reported.filter(f=>f.nil).map(f=>({tag:f.tag,context:f.context,period:f.period,start:f.start||null,unit:f.currency||'unknown',value:null}))}:undefined;
+ const selectedNotes=includeStatements?extractFilingNotes(xml):null;
+ const statement=includeStatements?{notes:selectedNotes?.notes||[],noteCoverage:selectedNotes?{matching:selectedNotes.matching,omitted:selectedNotes.omitted,characters:selectedNotes.characters,scope:selectedNotes.scope}:null,facts:facts.map(f=>({tag:f.tag,context:f.context,period:f.period,start:f.start||null,unit:f.currency||'unknown',value:f.value})),unreported:reported.filter(f=>f.nil).map(f=>({tag:f.tag,context:f.context,period:f.period,start:f.start||null,unit:f.currency||'unknown',value:null}))}:undefined;
  return JSON.parse(JSON.stringify({ticker,observations,periods:[...new Set(observations.map(o=>o.period))].sort().reverse(),retrievedAt,url,publishedAt,...(statement?{statement}:{})}));
 }
 export function idxReportUrl(ticker,year,period='audit'){return `${filingRoot}/primary/ListedCompany/GetFinancialReport?indexFrom=1&pageSize=5&year=${year}&reportType=rdf&EmitenType=s&periode=${period}&kodeEmiten=${ticker}`;}

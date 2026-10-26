@@ -1,0 +1,13 @@
+const selectedTag=tag=>/Borrow|BankLoan|Lease|ShareCapital|CapitalStock|Stockholder|Equity|Depreci|Amorti|Intangible|PropertyPlant|FixedAsset|OtherCurrentFinancialLiabil|OtherNonCurrentFinancialLiabil/i.test(tag);
+const entity=s=>s.replace(/&#x([0-9a-f]+);/gi,(_,n)=>String.fromCodePoint(Math.min(0x10ffff,parseInt(n,16)))).replace(/&#(\d+);/g,(_,n)=>String.fromCodePoint(Math.min(0x10ffff,Number(n)))).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&nbsp;/g,' ').replace(/&amp;/g,'&');
+export function plainFilingText(raw){return entity(entity(String(raw))).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'').replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,'').replace(/<\/?(?:p|div|tr|br|li)\b[^>]*>/gi,'\n').replace(/<[^>]*>/g,' ').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'').replace(/[ \t]+/g,' ').replace(/\n\s*\n\s*\n/g,'\n\n').trim();}
+export function extractFilingNotes(xml,{maxPerNote=12000,maxTotal=60000}={}){
+ if(xml.length>8e6||/<!DOCTYPE|<!ENTITY/i.test(xml))throw Error('Unsupported XBRL document');
+ const contexts=new Map(),notes=[];let matching=0,omitted=0,used=0;
+ const tag=(s,n)=>s.match(new RegExp('<(?:[\\w-]+:)?'+n+'(?:\\s[^>]*)?>([^<]+)</(?:[\\w-]+:)?'+n+'>'))?.[1];
+ for(const m of xml.matchAll(/<(?:[\w-]+:)?context\b([^>]*)>([\s\S]*?)<\/(?:[\w-]+:)?context>/g)){const id=m[1].match(/\bid\s*=\s*["']([^"']+)/)?.[1];contexts.set(id,{period:tag(m[2],'instant')||tag(m[2],'endDate'),start:tag(m[2],'startDate')||null,dimensional:/<(?:[\w-]+:)?(?:segment|scenario|explicitMember|typedMember)\b/.test(m[2])});}
+ for(const m of xml.matchAll(/<([\w-]+):([\w-]*TextBlock)\b(?![^>]*\/>)([^>]*\bcontextRef\s*=[^>]*)>([\s\S]*?)<\/\1:\2>/g)){
+  if(!selectedTag(m[2])||/\bnil\s*=\s*["'](?:true|1)["']/.test(m[3]))continue;const context=m[3].match(/\bcontextRef\s*=\s*["']([^"']+)/)?.[1],scope=contexts.get(context);if(!scope||scope.dimensional)continue;const text=plainFilingText(m[4]);if(!text)continue;matching++;const remaining=Math.min(maxPerNote,maxTotal-used);if(remaining<=0){omitted++;continue;}const clipped=text.slice(0,remaining);used+=clipped.length;notes.push({tag:m[2],context,period:scope.period,start:scope.start,text:clipped,truncated:text.length>clipped.length,originalCharacters:text.length});
+ }
+ return {notes,matching,omitted,characters:used,scope:'Selected non-dimensional consolidated notes on financing, leases, capital and depreciation. Plain-text excerpts only; truncation is disclosed. No text amounts are automatically promoted to valuation inputs. Other notes, dimensional schedules and PDFs still require the original filing.'};
+}

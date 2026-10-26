@@ -1,38 +1,53 @@
-# RALVEN 5.2.0 — reviewed operating recovery
+# RALVEN 5.3.1 — period-matched source repair
 
-Released 26 October 2026, after the original submission. This is the next bounded stage of the intrinsic/relative remediation. It does not assert complete financial statements, dual-method valuations, or investment recommendations for every IDX issuer.
+Released 26 October 2026, after submission. This stage improves actual data retrieval and rejects unsupported historical defaults. It does not claim complete statements or validated intrinsic/relative values for every issuer.
 
-## What changed
+Version 5.3.1 also restores direct Data-menu access on narrow screens. This navigation correction preserves the 5.3 source rules and calculation logic.
 
-- Operating companies can use FCFF with negative early cash flows only through an explicit analyst-reviewed five-year recovery plan. Both final years require positive EBIT and FCFF.
-- The analyst supplies all six annual operating drivers, unrestricted cash allocated, a liquidity reserve, and five years of after-tax financing interest, principal and other cash obligations. Blank obligations never become zero. Principal cannot exceed disclosed financing debt.
-- Annual closing cash must fund deficits, obligations and the reserve. No new borrowing, equity issuance or dilution is supported. Financing cash payments constrain liquidity and are not deducted a second time from FCFF equity value. Constant WACC and current capital-claim values remain conditional assumptions.
-- Negative EBIT creates no immediate cash tax credit. No tax-loss carryforward benefit is invented. A separate jurisdiction-specific tax schedule would be needed to recognize such benefits.
-- An active unreviewed, stale or underfunded recovery plan withholds the action (WAIT), including when a relative fallback value exists. Removing the plan restores ordinary method-selection rules.
-- EV/Sales can accompany an eligible operating recovery when trailing earnings and EBITDA are nonpositive. At least three eligible positive peer observations are required; EV/Sales is capped below 30x. A sales multiple is a conditional pricing cross-check, not evidence that future profitability will recover.
-- Scenarios, sensitivity matrices, tornado values and Monte Carlo apply the recovery/funding gates. Invalid stresses remain unavailable. Monte Carlo exposes recovery/funding rejections; accepted draws are conditional and not investment probabilities.
-- Data and Forecast contain a recovery editor and liquidity schedule. Excel adds literal Recovery Inputs and formula-based Recovery Funding sheets, linked eligibility/rating guards and sensitivity checks. PDF includes the cash budget, source/rationale, limits, scenario omissions and simulation rejections.
-- Optional recovery inputs and annual paths round-trip through the Excel template. Exported boolean formula results retain valid XLSX cell types. Source classifications, peer membership, simulation and tornado remain export-time snapshots where labelled.
+## Data retrieved and exposed
 
-Review binds to the financial period, valuation date and source snapshot. User-entered review assertions are not independent source certification. Device-local plans are not uploaded as shared issuer facts. Excel source changes require reimport and review.
+- Queried supplemental Yahoo financial records for all 962 directory issuers. 650 returned 31,890 explicit dated observations; 312 returned none of the requested quarterly/TTM fields. No transport failures were recorded in this run. Quotes and original IDX filing dates were not refreshed or relabelled.
+- Added provider-reported TTM flows and dated quarter-end balances to the source adapter and packaged evidence. These are aggregator records, not IDX statements. Annual and periodic Yahoo observations count as the same origin. Primary compatible facts retain priority, and material disagreements remain conflicts.
+- Provider TTM is accepted only when explicitly labelled TTM. Quarter-end balances retain their dates. Quarterly flows are not multiplied by four, annual balances are not carried forward, normalized EBITDA is not silently substituted for reported EBITDA, and reconciled depreciation is not treated as full D&A.
+- Extracted 5,407 selected financing, capital and depreciation text excerpts from compatible cached IDX instances, covering 726 issuers. Data offers filing selection, note search and source/context/period labels. Excel includes Source Filing Notes; PDF includes a supporting-note index when exported through the application. Truncation is labelled. Numeric statement archives remain available for 924 issuers.
+- Refresh attempts and issuer-level outcomes are downloadable in `public/data/source-refresh.json`. Text notes do not automatically become numeric valuation inputs, verified zeros or recommendations. The original PDFs and dimensional schedules still require review.
 
-## Validation
+## Material correctness fixes
 
-144 automated tests pass, including archived BMRI values and simulation, funded/unfunded recovery, missing claims, review-basis changes, tax treatment, scenario shocks, sensitivity/Monte Carlo reconciliation, Excel import and the actual browser XLSX writer. Seven independent spreadsheet cases recalculate to the engine, covering FCFF, DDM, relative, residual, residual/relative blend and recovery with EV/Sales or EV/EBITDA. Funding reductions and blank annual drivers produce WAIT and blank sensitivity outputs. English and Indonesian report funding pages and browser controls were reviewed.
+Earlier adapters assumed zero for absent preferred/minority claims. That behavior is removed from the optional Python adapter. Saved records explicitly documenting such assumptions are quarantined: the rejected raw value, period and reason remain inspectable, while a compatible independently reported replacement may still be used. Missing remains missing.
 
-The [synthetic recovery example](https://ralven-equity-terminal.airycoot8.chatgpt.site/?case=RECOVERY-DEMO) uses fictional subject and peer data solely to inspect model behavior. It is not an IDX issuer analysis. Its tests are in `tests/recovery*.mjs`.
+An observed debt total below compatible primary borrowing components is flagged as a conflict. Missing EBIT is not coerced to zero to backsolve a D&A assumption from EBITDA. Older stored latest snapshots are reprocessed through the current source rules; superseded stored summaries cannot overwrite the current screen. Exact dated snapshots and the original submitted BMRI case remain preserved.
 
-## Coverage and remaining work
+## Measured gap changes
 
-The dated 962-issuer package still records 474 dual-method assessments: 71 cash-flow DCF + relative and 403 accounting-based residual income + relative; 168 relative-only, 42 intrinsic-only and 278 incomplete. Source-primary coverage remains 924/962. These counts distinguish availability from actionability and do not represent a new market-wide data retrieval. Recovery plans are intentionally not auto-created to inflate coverage.
+Same 962-record audit, same 26 October valuation date; these are selected-basis field gaps, not a claim that every remaining value is independently verified:
 
-Remaining stages:
+| Input | Missing before | Missing after |
+|---|---:|---:|
+| Debt | 333 | 157 |
+| EBITDA | 737 | 316 |
+| Capex | 821 | 372 |
+| EBIT | 71 | 54 |
+| Preferred claims | 771 | 850 |
+| Full D&A | 848 | 848 |
 
-1. Retrieve and review missing debt, leases, preferred claims, notes, D&A and compatible TTM evidence. Preserve missing/nil as missing and original source lineage.
-2. Prepare issuer-specific recovery forecasts and cash obligations where reliable disclosures permit; extend to explicit refinancing/dilution, tax-loss schedules and intrayear liquidity only with supporting data.
-3. Integrate supported mine-life/closure, holding-asset DCF and capital/solvency-aware financial-sector models. Research Lab sector cases remain supplemental until that integration is validated.
-4. Review issuer forecasts, peer economics, terminal normalization, residual clean-surplus/fade assumptions and simulation calibration. A technically calculable value is not a validated analyst conclusion.
+Preferred gaps increase because unsupported assumed zeros were removed. Depreciation-only disclosures remain distinct from full D&A. Do not repair these gaps by entering unverified zero.
 
-The original submitted BMRI PDF, archived BMRI assumptions/results and `submission-baseline-2026-10-25` remain preserved. Later code/reports are versioned rather than backdated. Prior release notes: `RELEASE_5_1.md`.
+## Coverage and validation
 
-Methodology reference: [Damodaran, cash-flow DCF](https://pages.stern.nyu.edu/~adamodar/pdfiles/dcfcf.pdf). The implementation's cash-funding limits and review rules are explicitly documented model policy.
+The current package records 475 two-method assessments: 69 DCF + relative and 406 accounting-based residual income + relative. It also records 169 relative-only, 41 intrinsic-only and 277 incomplete assessments. DCF coverage is lower than 5.2 after rejecting unsupported/default or conflicting inputs. Availability remains separate from actionability; residual income is not labelled cash-flow DCF.
+
+The screen records 40 source-reconciled valuation indications, 636 conditional valuations, 152 technical indications and 134 WAIT outcomes. 676 supported fundamental analyses pass sensitivity-center, tornado and seeded 100-draw simulation checks. Unsupported charts retain explicit reasons. Market-price freshness remains based on the original quote dates, not the statement retrieval time.
+
+161 automated tests pass, including the original BMRI result/seed controls, provider-period/definition/origin checks, explicit-zero versus missing, legacy-default quarantine, debt components, safe note extraction, stored snapshot handling and existing recovery-model checks. Seven independently recalculated spreadsheet cases continue to match the engine and sensitivity centers. The production build validates cached CPIN delivery, same-period supplemental debt, missing preferred claims, note availability and worker routes with providers offline.
+
+## What remains
+
+1. Verify outstanding preferred/share-class claims, full D&A, lease/funding classification, PDF-only and dimensional disclosures. The new source-note access supports review; it does not complete it automatically.
+2. Reconcile material source differences and unavailable/stale market quotes. An outcome for every directory record is not an investment-grade rating for every company.
+3. Review issuer-specific operating forecasts, recovery funding, capital assumptions, peers and terminal states. Complete source data alone does not validate a forecast.
+4. Integrate supported mining, holding-company and capital/solvency-aware sector models. Existing supplemental sector tools do not silently drive automatic recommendations.
+
+The original submitted BMRI PDF, archived BMRI inputs/results, older deliverables and submission-baseline branch remain preserved. See `USER_GUIDE_5.md` for operation and `RELEASE_5_2.md` for recovery-model limits.
+
+Source scope reference: [IDX XBRL taxonomy and notes](https://www.idx.id/en/listed-companies/xbrl/). Provider records remain separately identified in the evidence register.

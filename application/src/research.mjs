@@ -10,7 +10,7 @@ export function selectPeers(c,pool=c.peers||[]){
  const score=p=>(p.subIndustry&&p.subIndustry===c.subIndustry?0:10)+Math.abs(Date.parse(c.period)-Date.parse(p.period))/86400000/100+Math.abs(Math.log(Math.max(1,p.price*p.shares)/scale));
  return pool.filter(p=>{if(seen.has(p.ticker)||(c.excludedPeerTickers||[]).includes(p.ticker)||!comparablePeer(c,p))return false;seen.add(p.ticker);return true;}).sort((x,y)=>score(x)-score(y)).slice(0,12);
 }
-export function assumptions(c){return {...defaults,margin:c.ebit>0&&c.revenue>0?Math.min(.95,c.ebit/c.revenue):.15,da:Number.isFinite(c.daRatio)?c.daRatio:c.ebitda>c.ebit&&c.revenue>0?(c.ebitda-c.ebit)/c.revenue:.03,capex:Number.isFinite(c.capexRatio)?c.capexRatio:.055};}
+export function assumptions(c){return {...defaults,margin:c.ebit>0&&c.revenue>0?Math.min(.95,c.ebit/c.revenue):.15,da:Number.isFinite(c.daRatio)?c.daRatio:Number.isFinite(c.ebitda)&&Number.isFinite(c.ebit)&&c.ebitda>c.ebit&&c.revenue>0?(c.ebitda-c.ebit)/c.revenue:.03,capex:Number.isFinite(c.capexRatio)?c.capexRatio:.055};}
 function calculateCompany(subject,a=assumptions(subject),{grid=true}={}){
  const c={...subject,peers:selectPeers(subject)};
  const base=evaluate(c,a,{grid});base.basis='FUNDAMENTAL';base.engine='core';

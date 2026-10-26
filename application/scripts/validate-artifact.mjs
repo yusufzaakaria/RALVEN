@@ -51,6 +51,8 @@ const cpinStatements = await (await workerModule.default.fetch(request('/data/st
 assert.ok(cpinStatements.reports.length >= 2);
 assert.ok(cpinStatements.reports.every(report => report.rows.every(([tag, col, value]) => typeof taxonomy[tag] === 'string' && report.columns[col] && Number.isFinite(value))));
 assert.ok(cpinStatements.reports.some(report => report.rows.some(([tag]) => /Inventories|IncomeTax/.test(taxonomy[tag]))));
+const aaliNotes=await(await workerModule.default.fetch(request('/data/statements/AALI.json'))).json();
+assert.ok(aaliNotes.reports.some(r=>(r.notes||[]).length>0));
 const csv = await workerModule.default.fetch(request('/data/completeness.csv'));
 assert.match(csv.headers.get('Content-Type'), /text\/csv/);
 assert.match(await csv.text(), /"ticker"/);
@@ -65,8 +67,10 @@ try {
   assert.equal(company.ticker, "CPIN");
   assert.equal(company.period, "2026-06-30");
   assert.ok(Math.abs(company.ebit - 10111.511) < 1e-6);
-  assert.equal(company.debt, null);
-  assert.equal(company.evidence.rows.find(x => x.field === "debt").availability, "partial");
+  assert.ok(Math.abs(company.debt-9848.829)<1e-6);
+  assert.equal(company.evidence.rows.find(x => x.field === "debt").sourceId, "yahoo-periodic");
+  assert.equal(company.preferred,null);
+  assert.ok(company.inputRejections.some(x=>x.field==='preferred'));
 } finally {
   globalThis.fetch = originalFetch;
 }

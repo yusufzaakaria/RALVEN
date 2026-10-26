@@ -4,8 +4,8 @@ import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {inflateRawSync} from 'node:zlib';
 const repo=path.dirname(fileURLToPath(import.meta.url));
-const zip=await fs.readFile(path.join(repo,'RALVEN_Application_5.2.0.zip'));
-const expected='e536d670ab2fcf8d6163ffc3e4f0ae8a99299262b6b1de0a9257a93afdee259a';
+const zip=await fs.readFile(path.join(repo,'RALVEN_Application_5.3.1.zip'));
+const expected='7675c601e9369c46eb70dab63f114be24a295309016088682c21295eb0c62dce';
 if(createHash('sha256').update(zip).digest('hex')!==expected)throw Error('The archive differs from the verified baseline. Review a new package before changing this checksum.');
 const root=path.join(repo,'application');let end=-1;
 for(let i=zip.length-22;i>=Math.max(0,zip.length-65557);i--)if(zip.readUInt32LE(i)===0x06054b50){end=i;break;}
