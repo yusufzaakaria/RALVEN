@@ -15,7 +15,7 @@ Capital-schedule checks recover explicit preferred-stock closing zeros for 84 is
 
 Method selection excludes conflicted inputs before selecting intrinsic or relative valuation. DCF plus relative coverage increases from 69 to 76. Total two-method coverage changes from 475 to 467 as other disputed methods are excluded; residual income is not cash-flow DCF. 674 supported fundamental analyses pass chart checks.
 
-177 automated tests and ten independent Excel formula cases pass. Primary numeric archives cover 924 of 962 issuers; full D&A remains missing for 848 on the selected basis. No all-company completeness or investment-grade recommendation claim is made. [Capital extraction audit](https://ralven-equity-terminal.airycoot8.chatgpt.site/data/capital-audit.json).
+178 automated tests and ten independent Excel formula cases pass. Primary numeric archives cover 924 of 962 issuers; full D&A remains missing for 848 on the selected basis. No all-company completeness or investment-grade recommendation claim is made. [Capital extraction audit](https://ralven-equity-terminal.airycoot8.chatgpt.site/data/capital-audit.json).
 
 The original submitted BMRI case and submission baseline remain preserved. Later work is versioned rather than backdated.
 
@@ -51,7 +51,7 @@ node build.mjs
 node scripts/validate-artifact.mjs
 ```
 
-The release has 177 passing regression tests. The Excel formula chain is separately checked against the application calculation engine. No repository write automation is installed.
+The release has 178 passing regression tests. The Excel formula chain is separately checked against the application calculation engine. No repository write automation is installed.
 
 ## Functionality
 

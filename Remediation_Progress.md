@@ -31,8 +31,10 @@ Coverage can decrease when disputed methods are excluded. There are 962 director
 674 supported fundamental analyses pass sensitivity-center, tornado and seeded simulation checks; 288 retain explicit unavailable reasons. Assurance distinguishes 41 fundamental, 633 indicative, 163 technical and 125 unrated assessments. Technical signals are not intrinsic valuations. Quotes retain observed dates.
 
 ## Validation and remaining work
-177 tests pass, including preserved BMRI controls, schedule identity/zero checks, method eligibility and exports. Ten independently recalculated Excel cases match engine values and sensitivity centers. Production artifact checks pass. Browser review verifies ICBP capital controls while retaining its disputed EBIT warning.
+178 tests pass, including preserved BMRI controls, schedule identity/zero checks, method eligibility and exports. Ten independently recalculated Excel cases match engine values and sensitivity centers. Production artifact checks pass. Browser review verifies ICBP capital controls while retaining its disputed EBIT warning.
 
 Remaining: verify unresolved claims and full D&A in notes/PDFs; reconcile conflicts; review issuer forecasts, recovery funding and peers; add supported mining, holding-company and solvency-aware models. Complete all-issuer data and investment-grade recommendations are not claimed.
 
 Source scope: https://www.idx.id/en/listed-companies/xbrl/ . See USER_GUIDE_5.md and earlier release notes.
+
+Older saved filing snapshots retain a separate archived capital-evidence filing option when their own extraction lacks the schedule. Source dates are preserved; archived controls are not silently attached to newer filing facts.
